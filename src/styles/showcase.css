@@ -1,0 +1,450 @@
+/* ── Employer & Worker showcase screens — warm grey-beige AI-styled desktop view ── */
+/* Colors are hardcoded (not theme vars) so this look is stable regardless of the
+   light/dark toggle. Selectors are prefixed with "body" to guarantee they win over
+   the older body.employer-desktop / body.worker-desktop rules elsewhere in main.css
+   that share the same specificity tier (id + classes + a type selector). */
+
+@keyframes itemRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body #screen-worker.active,
+body #screen-employer.active {
+  align-items: center !important;
+  padding: 44px 32px 72px !important;
+  background: linear-gradient(135deg, #5b564e 0%, #44403c 50%, #292524 100%) !important;
+  min-height: 100vh !important;
+}
+
+/* Beats a legacy main.css rule (body.employer-desktop / body.worker-desktop, same
+   specificity tier) that was capping these at 1240px — must match its selector
+   exactly so the cascade tie is broken by source order (this file loads after). */
+body.worker-desktop #screen-worker.active > .section-title,
+body.employer-desktop #screen-employer.active > .section-title,
+body.worker-desktop #screen-worker.active > .section-sub,
+body.employer-desktop #screen-employer.active > .section-sub,
+body.worker-desktop #screen-worker.active > .value-hero,
+body.employer-desktop #screen-employer.active > .value-hero,
+body.worker-desktop #screen-worker.active > .menu-list,
+body.employer-desktop #screen-employer.active > .menu-list {
+  width: min(1600px, calc(100vw - 280px)) !important;
+  max-width: 1600px !important;
+}
+
+body #screen-worker.active > .section-title,
+body #screen-employer.active > .section-title,
+body #screen-resume-db.active > .section-title {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  text-align: left !important;
+  font-size: clamp(40px, 5vw, 64px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.03em !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 28px rgba(255,184,77,0.22) !important;
+  margin-bottom: 8px !important;
+}
+
+body #screen-worker.active > .section-sub,
+body #screen-employer.active > .section-sub {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  text-align: left !important;
+  font-size: 18px !important;
+  color: #d8d2c8 !important;
+  margin-bottom: 28px !important;
+}
+
+/* ── Value hero — real photo banner with a warm dark overlay tint ── */
+body #screen-worker .value-hero,
+body #screen-employer .value-hero {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  min-height: 380px !important;
+  border-radius: 28px !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1.1fr 0.9fr !important;
+  align-items: stretch !important;
+  justify-content: normal !important;
+  gap: 0 !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  overflow: hidden !important;
+}
+
+body #screen-worker .vh-copy,
+body #screen-employer .vh-copy {
+  max-width: none !important;
+  padding: 40px 44px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+
+body #screen-worker .vh-eyebrow,
+body #screen-employer .vh-eyebrow {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(245,166,35,0.16) !important;
+  border: 1px solid rgba(245,166,35,0.35) !important;
+  color: #ffb84d !important;
+  border-radius: 999px !important;
+  padding: 5px 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 16px !important;
+  width: fit-content !important;
+}
+
+body #screen-worker .vh-title,
+body #screen-employer .vh-title {
+  font-size: clamp(28px, 3.1vw, 44px) !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.025em !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 24px rgba(255,184,77,0.18) !important;
+  margin-bottom: 14px !important;
+}
+
+body #screen-worker .vh-sub,
+body #screen-employer .vh-sub {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  color: #d8d2c8 !important;
+  margin-bottom: 22px !important;
+}
+
+body #screen-worker .vh-tags,
+body #screen-employer .vh-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+body #screen-worker .vh-tag,
+body #screen-employer .vh-tag {
+  background: rgba(245,166,35,0.12) !important;
+  border: 1px solid rgba(245,166,35,0.3) !important;
+  color: #ffb84d !important;
+  border-radius: 999px !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+/* Real photo banner, kept — just tinted to match the warm dark palette */
+body #screen-worker .vh-visual,
+body #screen-employer .vh-visual {
+  position: relative !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 380px !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+body #screen-worker .vh-photo,
+body #screen-employer .vh-photo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 380px !important;
+  object-fit: cover !important;
+  object-position: center 30% !important;
+  filter: saturate(0.92) brightness(0.78) !important;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 22%) !important;
+          mask-image: linear-gradient(to right, transparent 0%, #000 22%) !important;
+}
+
+body #screen-worker .vh-visual::after,
+body #screen-employer .vh-visual::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(135deg, rgba(41,37,36,0.78) 0%, rgba(41,37,36,0.18) 45%, rgba(41,37,36,0.55) 100%) !important;
+}
+
+body #screen-worker .vh-chip,
+body #screen-employer .vh-chip {
+  position: absolute;
+  left: 14px;
+  z-index: 3;
+  background: rgba(41,37,36,0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #faf9f7;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 0 18px rgba(245,166,35,0.18);
+}
+
+body #screen-worker .vh-chip--top,
+body #screen-employer .vh-chip--top { top: 14px; }
+body #screen-worker .vh-chip--sub,
+body #screen-employer .vh-chip--sub { top: 50px; }
+
+/* ── Quick action cards ── */
+body #screen-worker .menu-heading,
+body #screen-employer .menu-heading {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  margin: 24px 0 12px !important;
+}
+
+body #screen-worker .mh-title,
+body #screen-employer .mh-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #faf9f7 !important;
+}
+
+body #screen-worker .mh-sub,
+body #screen-employer .mh-sub {
+  font-size: 13px !important;
+  color: #c9c2b8 !important;
+}
+
+body #screen-worker .menu-list,
+body #screen-employer .menu-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  max-width: 1600px !important;
+  width: min(1600px, 100%) !important;
+}
+
+body #screen-worker .menu-item,
+body #screen-employer .menu-item {
+  min-height: 112px !important;
+  padding: 18px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+  animation: itemRise 0.4s ease backwards !important;
+}
+
+body #screen-worker .menu-list .menu-item:nth-child(1), body #screen-employer .menu-list .menu-item:nth-child(1) { animation-delay: 0.02s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(2), body #screen-employer .menu-list .menu-item:nth-child(2) { animation-delay: 0.06s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(3), body #screen-employer .menu-list .menu-item:nth-child(3) { animation-delay: 0.10s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(4), body #screen-employer .menu-list .menu-item:nth-child(4) { animation-delay: 0.14s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(5), body #screen-employer .menu-list .menu-item:nth-child(5) { animation-delay: 0.18s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(6), body #screen-employer .menu-list .menu-item:nth-child(6) { animation-delay: 0.22s !important; }
+body #screen-worker .menu-list .menu-item:nth-child(n+7), body #screen-employer .menu-list .menu-item:nth-child(n+7) { animation-delay: 0.26s !important; }
+
+body #screen-worker .menu-item:hover,
+body #screen-employer .menu-item:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(245,166,35,0.45) !important;
+  background: rgba(245,166,35,0.09) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 24px rgba(245,166,35,0.15) !important;
+}
+
+body #screen-worker .menu-item .mi-icon,
+body #screen-employer .menu-item .mi-icon {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 14px !important;
+  font-size: 27px !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+
+body #screen-worker .menu-item:hover .mi-icon,
+body #screen-employer .menu-item:hover .mi-icon {
+  transform: scale(1.08) !important;
+}
+
+body #screen-worker .menu-item .mi-text .mi-title,
+body #screen-employer .menu-item .mi-text .mi-title {
+  color: #faf9f7 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+body #screen-worker .menu-item .mi-text .mi-desc,
+body #screen-employer .menu-item .mi-text .mi-desc {
+  color: #c9c2b8 !important;
+  font-size: 12px !important;
+}
+
+/* ── Stats metrics ── */
+body #screen-worker .promo-metrics,
+body #screen-employer .promo-metrics {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 0 0 14px !important;
+}
+
+body #screen-worker .pm-item,
+body #screen-employer .pm-item {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 16px !important;
+  padding: 18px 20px !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+body #screen-worker .pm-num,
+body #screen-employer .pm-num {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  background: linear-gradient(90deg, #f5a623, #ffb84d) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  margin-bottom: 4px !important;
+  display: inline-block !important;
+}
+
+body #screen-worker .pm-label,
+body #screen-employer .pm-label {
+  font-size: 13px !important;
+  color: #c9c2b8 !important;
+  line-height: 1.4 !important;
+}
+
+/* ── Feature cards ── */
+body #screen-worker .promo-features,
+body #screen-employer .promo-features {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  margin-bottom: 0 !important;
+}
+
+body #screen-worker .pf-card,
+body #screen-employer .pf-card {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 16px !important;
+  padding: 18px 20px !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+body #screen-worker .pf-title,
+body #screen-employer .pf-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #ffb84d !important;
+  margin-bottom: 6px !important;
+}
+
+body #screen-worker .pf-desc,
+body #screen-employer .pf-desc {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #c9c2b8 !important;
+}
+
+/* ── Insights section ── */
+body #screen-worker .insights-section,
+body #screen-employer .insights-section {
+  width: min(1600px, 100%) !important;
+  max-width: 1600px !important;
+  margin-top: 20px !important;
+  padding: 24px 28px !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+body #screen-worker .insights-heading,
+body #screen-employer .insights-heading {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  color: #faf9f7 !important;
+  margin: 0 0 14px !important;
+}
+
+/* ── Desktop: скрываем меню-дубликаты (есть сайдбар) ───────────────────── */
+@media (min-width: 900px) {
+  body.employer-desktop #screen-employer > .back-btn,
+  body.worker-desktop   #screen-worker  > .back-btn  { display: none !important; }
+
+  body.employer-desktop #screen-employer > .menu-heading,
+  body.employer-desktop #screen-employer > .menu-list,
+  body.worker-desktop   #screen-worker  > .menu-heading,
+  body.worker-desktop   #screen-worker  > .menu-list  { display: none !important; }
+}
+
+/* ── Mobile: behave like a real app screen, not a marketing landing page ── */
+@media (max-width: 900px) {
+  body #screen-worker.active,
+  body #screen-employer.active {
+    padding: 16px 16px 80px !important;
+    background: linear-gradient(135deg, #5b564e 0%, #44403c 50%, #292524 100%) !important;
+  }
+
+  /* Drop the marketing hero banner, stats and feature blocks entirely */
+  body #screen-worker .value-hero,
+  body #screen-employer .value-hero,
+  body #screen-worker .promo-metrics,
+  body #screen-employer .promo-metrics,
+  body #screen-worker .promo-features,
+  body #screen-employer .promo-features,
+  body #screen-worker .insights-section,
+  body #screen-employer .insights-section {
+    display: none !important;
+  }
+
+  body #screen-worker.active > .section-title,
+  body #screen-employer.active > .section-title {
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
+  }
+
+  body #screen-worker.active > .section-sub,
+  body #screen-employer.active > .section-sub {
+    font-size: 14px !important;
+    margin-bottom: 18px !important;
+  }
+
+  body #screen-worker .menu-heading,
+  body #screen-employer .menu-heading {
+    display: none !important;
+  }
+
+  body #screen-worker .menu-list,
+  body #screen-employer .menu-list {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  body #screen-worker .menu-item,
+  body #screen-employer .menu-item {
+    min-height: auto !important;
+    padding: 14px 16px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+}

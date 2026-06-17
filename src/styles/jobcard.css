@@ -1,0 +1,339 @@
+
+/* ═══════════════════════════════════════════════════════════════
+   JOB CARD
+   ═══════════════════════════════════════════════════════════════ */
+
+#jobs-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Карточка */
+.job-card {
+  background: #ffffff !important;
+  border: 1px solid #E4E4E7 !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 12px !important;
+  padding: 26px 24px !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition: border-color .18s, box-shadow .18s, border-left-color .18s !important;
+  transform: none !important;
+  display: block !important;
+}
+.job-card:hover {
+  border-color: #E4E4E7 !important;
+  border-left-color: #84CC16 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07) !important;
+  background: #ffffff !important;
+  transform: none !important;
+}
+
+/* Внутренний flex: лого | контент | разделитель | корзина */
+.jc-main {
+  display: flex !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+.jc-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+/* Боковой блок: лого + избранное */
+.jc-side {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+}
+.jc-side-btns {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex: 1 !important;
+  justify-content: flex-end !important;
+}
+.jc-side .fav-btn {
+  background: none !important;
+  border: none !important;
+  font-size: 17px !important;
+  cursor: pointer !important;
+  padding: 4px 6px !important;
+  opacity: 0.35 !important;
+  transition: opacity .15s !important;
+  line-height: 1 !important;
+}
+.job-card:hover .jc-side .fav-btn,
+.jc-side .fav-btn.active { opacity: 1 !important; }
+
+/* Логотип */
+.jc-logo {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  border-radius: 12px !important;
+  background: #F4F4F5 !important;
+  color: #18181B !important;
+  border: 1px solid #E4E4E7 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Разделитель */
+.jc-divider {
+  width: 1px !important;
+  background: #E4E4E7 !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+  margin: -4px 0 !important;
+}
+
+/* Колонка с корзиной */
+.jc-trash-col {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  padding: 0 4px !important;
+}
+.jc-hide-btn {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 8px !important;
+  border-radius: 8px !important;
+  color: #EF4444 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  transition: background .15s !important;
+}
+.jc-hide-btn:hover { background: #FEF2F2 !important; }
+.jc-hide-btn svg { width: 18px !important; height: 18px !important; }
+
+/* Строка с названием */
+.jc-title-row {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.jc-title {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: #18181B !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+  flex: 1 !important;
+}
+
+/* Зарплата */
+.jc-salary {
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: #3A7D0A !important;
+  -webkit-text-fill-color: #3A7D0A !important;
+  background: none !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 !important;
+}
+
+/* Строка компании */
+.jc-company-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.jc-company-text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #3F3F46 !important;
+}
+.verified-chip {
+  font-size: 11px !important;
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  border: 1px solid #BBF7D0 !important;
+  border-radius: 4px !important;
+  padding: 2px 7px !important;
+  font-weight: 700 !important;
+}
+.jc-rating,
+.rating-inline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #92400E !important;
+  background: #FEF3C7 !important;
+  border-radius: 4px !important;
+  padding: 2px 7px !important;
+}
+.ri-count { color: #B45309 !important; font-weight: 500 !important; }
+
+/* Теги */
+.jc-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.jc-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #3F3F46 !important;
+  background: #F4F4F5 !important;
+  border: 1px solid #E4E4E7 !important;
+  border-radius: 6px !important;
+  padding: 4px 10px !important;
+  white-space: nowrap !important;
+}
+
+/* Кнопки */
+.jc-actions {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 2px !important;
+}
+.jc-apply-btn {
+  padding: 9px 20px !important;
+  background: #18181B !important;
+  color: #84CC16 !important;
+  -webkit-text-fill-color: #84CC16 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  flex: none !important;
+  transition: background .15s !important;
+}
+.jc-apply-btn:hover { background: #27272A !important; opacity: 1 !important; }
+.jc-apply-btn:disabled {
+  background: #F4F4F5 !important;
+  color: #A1A1AA !important;
+  -webkit-text-fill-color: #A1A1AA !important;
+  cursor: default !important;
+}
+.jc-contact-btn {
+  padding: 9px 18px !important;
+  background: transparent !important;
+  color: #3F3F46 !important;
+  border: 1px solid #D4D4D8 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  flex: none !important;
+}
+.jc-contact-btn:hover { border-color: #18181B !important; color: #18181B !important; opacity: 1 !important; }
+
+/* Бейдж Новая */
+.badge-new-job {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  background: #F7FEE7 !important;
+  color: #3F6212 !important;
+  border: 1px solid #BEF264 !important;
+  border-radius: 4px !important;
+  padding: 2px 7px !important;
+  vertical-align: middle !important;
+}
+
+.job-closed { opacity: 0.45 !important; }
+.job-closed-label { font-size: 13px !important; color: #A1A1AA !important; font-weight: 500 !important; }
+
+/* Группировка по дате */
+.jc-group-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #18181B !important;
+  padding: 4px 0 2px !important;
+  margin-top: 10px !important;
+}
+.jc-group-header:first-child { margin-top: 0 !important; }
+.jc-group-header::after {
+  content: "" !important;
+  flex: 1 !important;
+  height: 1px !important;
+  background: #E4E4E7 !important;
+}
+.jc-group-count {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #A1A1AA !important;
+  background: #F4F4F5 !important;
+  border-radius: 999px !important;
+  padding: 1px 7px !important;
+  order: -1 !important;
+}
+
+/* Диалог подтверждения скрытия */
+.hide-job-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0,0,0,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9000 !important;
+  padding: 20px !important;
+}
+.hide-job-modal {
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  padding: 28px 24px 24px !important;
+  max-width: 340px !important;
+  width: 100% !important;
+  text-align: center !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.22) !important;
+}
+.hide-job-icon { font-size: 36px !important; margin-bottom: 12px !important; display: block !important; }
+.hide-job-title { font-size: 18px !important; font-weight: 800 !important; color: #18181B !important; margin-bottom: 8px !important; }
+.hide-job-desc { font-size: 14px !important; color: #71717A !important; line-height: 1.55 !important; margin-bottom: 22px !important; }
+.hide-job-btns { display: flex !important; gap: 10px !important; }
+.hide-job-cancel {
+  flex: 1 !important; padding: 12px !important;
+  background: #F4F4F5 !important; color: #3F3F46 !important; -webkit-text-fill-color: #3F3F46 !important;
+  border: none !important; border-radius: 10px !important;
+  font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important;
+}
+.hide-job-cancel:hover { background: #E4E4E7 !important; }
+.hide-job-confirm {
+  flex: 1 !important; padding: 12px !important;
+  background: #EF4444 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+  border: none !important; border-radius: 10px !important;
+  font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important;
+}
+.hide-job-confirm:hover { background: #DC2626 !important; }

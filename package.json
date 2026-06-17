@@ -1,0 +1,22 @@
+{
+  "name": "good-vahta",
+  "version": "1.0.0",
+  "description": "Good_Вахта — вахтовая работа с проверенными работодателями",
+  "scripts": {
+    "dev":   "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["vahta", "jobs", "telegram-mini-app", "vk-mini-app"],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "vite": "^8.0.8"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "@vkontakte/vk-bridge": "^2.15.11",
+    "jspdf": "^4.2.1"
+  }
+}

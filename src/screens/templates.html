@@ -1,0 +1,1158 @@
+<!-- SCREEN: HOME -->
+<div id="screen-home" class="screen active">
+  <div style="align-self:flex-end;margin-bottom:-14px">
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Сменить тему">
+      <span id="theme-icon">🌙</span>
+    </button>
+  </div>
+  <div class="hero">
+    <div class="logo-ring">⛏️</div>
+    <div class="app-title">Good_Вахта</div>
+    <div class="app-subtitle">Вахтовая работа только с проверенными работодателями</div>
+    <div class="trust-strip"><span class="ts-icon">🛡️</span> Только проверенные работодатели</div>
+  </div>
+  <div class="role-grid">
+    <div class="role-card employer" onclick="goTo('screen-employer')">
+      <div class="icon-wrap">🏗️</div>
+      <div class="label">Работодатель</div>
+      <div class="desc">Пройдите верификацию и размещайте вакансии</div>
+    </div>
+    <div class="role-card worker" onclick="goTo('screen-worker')">
+      <div class="icon-wrap">👷</div>
+      <div class="label">Соискатель</div>
+      <div class="desc">Работайте только с проверенными компаниями</div>
+    </div>
+  </div>
+  <div class="mgr-entry-link" onclick="goTo('screen-manager-join')">
+    🔑 Войти как менеджер (есть код компании)
+  </div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num">2 400+</div><div class="stat-label">Вакансий</div></div>
+    <div class="stat-item"><div class="stat-num">18 000+</div><div class="stat-label">Соискателей</div></div>
+    <div class="stat-item"><div class="stat-num">340+</div><div class="stat-label">Проверенных компаний</div></div>
+  </div>
+</div>
+
+
+<!-- SCREEN: ВХОД КАК МЕНЕДЖЕР -->
+<div id="screen-manager-join" class="screen">
+  <button class="back-btn" onclick="goTo('screen-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Вход для менеджера 🔑</div>
+  <div class="section-sub">Введите код компании, который выдал работодатель</div>
+  <div class="form-wrap" style="width:100%;max-width:400px">
+    <div class="form-group">
+      <label class="form-label">Код компании <span class="fl-req">*</span></label>
+      <input class="form-input mgr-code-input" id="mgr-code-input" type="text"
+             placeholder="ABC123" maxlength="6"
+             oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+             onkeydown="if(event.key==='Enter') joinAsManager()" />
+    </div>
+    <div class="form-nav">
+      <button class="btn-submit" style="flex:1" onclick="joinAsManager()">Войти в кабинет ›</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCREEN: РАБОТОДАТЕЛЬ -->
+<div id="screen-employer" class="screen">
+  <button class="back-btn" onclick="goTo('screen-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Кабинет работодателя 🏗️</div>
+  <div class="section-sub">Только верифицированные компании</div>
+  <div class="mgr-banner" id="mgr-banner">
+    <div class="mgr-banner-icon">🔑</div>
+    <div class="mgr-banner-text">
+      <div class="mgr-banner-title" id="mgr-banner-title">Менеджер компании</div>
+      <div class="mgr-banner-sub">Вы управляете вакансиями как менеджер</div>
+    </div>
+    <button class="mgr-exit-btn" onclick="exitManagerMode()">Выйти</button>
+  </div>
+  <div class="verified-banner" id="verified-banner">
+    <div class="vb-icon" id="vb-icon">✅</div>
+    <div class="vb-text">
+      <div class="vb-title" id="vb-title">Верифицированный работодатель</div>
+      <div class="vb-desc" id="vb-desc">Ваш аккаунт проверен — соискатели вам доверяют</div>
+    </div>
+    <button class="btn-verify" id="vb-pay-btn" style="display:none;width:auto;padding:8px 14px;font-size:13px" onclick="openVerifyModal()">Получить ✓</button>
+  </div>
+  <div class="menu-list">
+    <div class="menu-item" onclick="goTo('screen-resume-db')">
+      <div class="mi-icon green">🔍</div>
+      <div class="mi-text"><div class="mi-title">Кандидаты</div><div class="mi-desc">Найдите подходящего работника</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="openCreateJob()">
+      <div class="mi-icon red">📋</div>
+      <div class="mi-text"><div class="mi-title">Создать вакансию</div><div class="mi-desc">Разместите новое объявление о работе</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="openEmployerResponses()">
+      <div class="mi-icon blue">💬</div>
+      <div class="mi-text"><div class="mi-title">Отклики</div><div class="mi-desc">Отклики кандидатов по вашим вакансиям</div></div>
+      <span class="mi-resp-badge" id="employer-resp-badge">0</span>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-my-jobs')">
+      <div class="mi-icon orange">📁</div>
+      <div class="mi-text"><div class="mi-title">Мои вакансии</div><div class="mi-desc">Активные и архивные объявления</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-company-profile')">
+      <div class="mi-icon purple">🏢</div>
+      <div class="mi-text"><div class="mi-title">Профиль компании</div><div class="mi-desc">Настройте страницу вашей организации</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-analytics')">
+      <div class="mi-icon" style="background:linear-gradient(135deg,#f7b731,#d4900b)">📊</div>
+      <div class="mi-text"><div class="mi-title">Аналитика <span class="badge badge-new">NEW</span></div><div class="mi-desc">Статистика по вакансиям и откликам</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCREEN: АНАЛИТИКА РАБОТОДАТЕЛЯ -->
+<div id="screen-analytics" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Аналитика 📊</div>
+  <div class="section-sub">Статистика по вашим вакансиям</div>
+  <div id="an-content"></div>
+</div>
+
+<!-- SCREEN: СОИСКАТЕЛЬ -->
+<div id="screen-worker" class="screen">
+  <button class="back-btn" onclick="goTo('screen-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Кабинет соискателя 👷</div>
+  <div class="section-sub">Все работодатели проверены — работайте безопасно</div>
+  <div class="verified-banner">
+    <div class="vb-icon">🛡️</div>
+    <div class="vb-text">
+      <div class="vb-title">Только проверенные работодатели</div>
+      <div class="vb-desc">Все компании на платформе прошли верификацию — никакого обмана</div>
+    </div>
+  </div>
+  <!-- Статус поиска работы -->
+  <div class="status-card" id="worker-status-card">
+    <div class="status-card-left">
+      <div class="status-dot active" id="ws-dot"></div>
+      <div>
+        <div class="status-label" id="ws-label">Активно ищу работу</div>
+        <div class="status-sub" id="ws-sub">Работодатели видят вас в базе резюме</div>
+      </div>
+    </div>
+    <label class="toggle-switch">
+      <input type="checkbox" id="ws-toggle" checked onchange="toggleWorkerStatus(this.checked)">
+      <span class="toggle-track"></span>
+    </label>
+  </div>
+
+  <div class="menu-list">
+    <div class="menu-item" onclick="goTo('screen-jobs')">
+      <div class="mi-icon orange">🔎</div>
+      <div class="mi-text"><div class="mi-title">Найти вакансию <span class="badge badge-new">NEW</span></div><div class="mi-desc">Только от проверенных работодателей — без мошенников</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-my-resumes')">
+      <div class="mi-icon blue">📄</div>
+      <div class="mi-text"><div class="mi-title">Моё резюме</div><div class="mi-desc">Создайте или обновите анкету</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-my-responses')">
+      <div class="mi-icon green">✅</div>
+      <div class="mi-text"><div class="mi-title">Мои отклики</div><div class="mi-desc">Отслеживайте статус заявок</div></div>
+      <span class="mi-resp-badge" id="worker-resp-badge">0</span>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-favorites')">
+      <div class="mi-icon red">❤️</div>
+      <div class="mi-text"><div class="mi-title">Избранное</div><div class="mi-desc">Сохранённые вакансии</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="openProfileScreen()">
+      <div class="mi-icon purple">👤</div>
+      <div class="mi-text"><div class="mi-title">Мой профиль</div><div class="mi-desc">Личные данные и настройки</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="openNotifScreen()">
+      <div class="mi-icon orange">🔔</div>
+      <div class="mi-text"><div class="mi-title">Уведомления</div><div class="mi-desc">Настройте Telegram-уведомления о вакансиях</div></div>
+      <span class="mi-resp-badge" id="notif-badge" style="display:none">●</span>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-recommendations')">
+      <div class="mi-icon" style="background:linear-gradient(135deg,#6c63ff,#3f3d99)">🎯</div>
+      <div class="mi-text"><div class="mi-title">Рекомендации <span class="badge badge-new">NEW</span></div><div class="mi-desc">Вакансии подобранные специально для вас</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="goTo('screen-referral')">
+      <div class="mi-icon" style="background:linear-gradient(135deg,#1db954,#0e8f3e)">🎁</div>
+      <div class="mi-text"><div class="mi-title">Пригласить друга</div><div class="mi-desc">Делитесь и получайте бонусы</div></div>
+      <div class="mi-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCREEN: ПОИСК ВАКАНСИЙ -->
+<div id="screen-jobs" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Поиск вакансий 🔎</div>
+  <div class="section-sub">Только проверенные работодатели</div>
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Профессия, город..." id="search-input" oninput="filterJobs()" />
+    </div>
+    <button class="filter-toggle-btn" id="job-filter-btn" onclick="toggleFilterPanel('jobs-filter-panel','job-filter-btn')">
+      ⚙️ <span class="filter-badge-cnt" id="job-filter-badge" style="display:none">0</span>
+    </button>
+  </div>
+  <div class="filter-panel" id="jobs-filter-panel">
+    <div class="filter-row">
+      <span class="filter-label">Зарплата (₽/мес)</span>
+      <div class="filter-inputs">
+        <input class="filter-input" type="number" placeholder="от" id="jf-sal-min" oninput="filterJobs()" />
+        <span class="filter-sep">—</span>
+        <input class="filter-input" type="number" placeholder="до" id="jf-sal-max" oninput="filterJobs()" />
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">График вахты</span>
+      <div class="filter-chips-wrap" id="jf-sched-chips">
+        <div class="f-chip active" onclick="setJobSchedFilter(this,'')">Любой</div>
+        <div class="f-chip" onclick="setJobSchedFilter(this,'30/30')">30/30</div>
+        <div class="f-chip" onclick="setJobSchedFilter(this,'45/15')">45/15</div>
+        <div class="f-chip" onclick="setJobSchedFilter(this,'60/30')">60/30</div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Сортировка</span>
+      <div class="filter-chips-wrap" id="jf-sort-chips">
+        <div class="f-chip active" onclick="setJobSort(this,'default')">По умолчанию</div>
+        <div class="f-chip" onclick="setJobSort(this,'salary')">По зарплате ↓</div>
+      </div>
+    </div>
+    <button class="filter-reset-btn" onclick="resetJobFilters()">✕ Сбросить фильтры</button>
+  </div>
+  <div class="chips-scroll">
+    <div class="chip active" onclick="setFilter(this,'all')">Все</div>
+    <div class="chip" onclick="setFilter(this,'oil')">Нефть и газ</div>
+    <div class="chip" onclick="setFilter(this,'build')">Строительство</div>
+    <div class="chip" onclick="setFilter(this,'mine')">Горнодобыча</div>
+    <div class="chip" onclick="setFilter(this,'food')">Питание / Быт</div>
+  </div>
+  <div class="jobs-list" id="jobs-container"></div>
+</div>
+
+
+<!-- SCREEN: ДЕТАЛИ ВАКАНСИИ -->
+<div id="screen-job-detail" class="screen">
+  <button class="back-btn" onclick="goTo('screen-jobs')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="detail-card">
+    <div class="detail-logo" id="d-logo"></div>
+    <div class="detail-company" id="d-company"></div>
+    <div class="detail-title" id="d-title"></div>
+    <div class="detail-salary" id="d-salary"></div>
+    <div class="detail-tags" id="d-tags"></div>
+  </div>
+  <div class="detail-card detail-section">
+    <div class="detail-section-title">О вакансии</div>
+    <p id="d-desc"></p>
+  </div>
+  <div class="detail-card detail-section">
+    <div class="detail-section-title">Требования</div>
+    <ul id="d-req"></ul>
+  </div>
+  <div class="detail-card detail-section">
+    <div class="detail-section-title">Условия</div>
+    <ul id="d-cond"></ul>
+  </div>
+  <div class="apply-row">
+    <button class="apply-btn" id="apply-btn" onclick="applyToJob()">✅ Откликнуться</button>
+    <a class="contact-job-btn" id="contact-btn" href="" style="display:none">📞 Связаться</a>
+  </div>
+</div>
+
+
+<!-- SCREEN: СОЗДАТЬ ВАКАНСИЮ -->
+<div id="screen-create-job" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div id="cj-form-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div class="section-title">Новая вакансия 📋</div>
+    <div class="section-sub">Заполните форму — займёт не более 3 минут</div>
+    <div class="form-progress">
+      <div class="fp-step"><div class="fp-dot active" id="fp1">1</div><div class="fp-label">Основное</div></div>
+      <div class="fp-line" id="fl1"></div>
+      <div class="fp-step"><div class="fp-dot" id="fp2">2</div><div class="fp-label">Требования</div></div>
+      <div class="fp-line" id="fl2"></div>
+      <div class="fp-step"><div class="fp-dot" id="fp3">3</div><div class="fp-label">Условия</div></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-wrap" id="cj-step1">
+      <div class="form-group">
+        <label class="form-label">Название вакансии <span class="fl-req">*</span></label>
+        <input class="form-input" id="cj-title" type="text" placeholder="Сварщик 5–6 разряда, Машинист экскаватора…" maxlength="80" oninput="updateChar('cj-title','cc-title',80)" />
+        <span class="char-count" id="cc-title">0 / 80</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Отрасль <span class="fl-req">*</span></label>
+        <div class="sched-chips" id="cj-cat-chips">
+          <div class="sched-chip" onclick="selectJobCategory(this,'oil')">⛽ Нефть и газ</div>
+          <div class="sched-chip" onclick="selectJobCategory(this,'build')">🏗 Строительство</div>
+          <div class="sched-chip" onclick="selectJobCategory(this,'mine')">⛏ Горнодобыча</div>
+          <div class="sched-chip" onclick="selectJobCategory(this,'food')">🍽 Питание/быт</div>
+          <div class="sched-chip" onclick="selectJobCategory(this,'other')">🔧 Другое</div>
+        </div>
+        <div id="cj-custom-cat-wrap" style="display:none;margin-top:8px">
+          <input class="form-input" id="cj-custom-cat" placeholder="Укажите свою отрасль" maxlength="50">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Зарплата <span class="fl-req">*</span></label>
+        <div class="salary-row">
+          <input class="form-input" id="cj-salary-from" type="number" placeholder="от 80 000" min="0" />
+          <input class="form-input" id="cj-salary-to" type="number" placeholder="до 150 000" min="0" />
+          <div class="salary-suffix">₽/мес</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Город / регион <span class="fl-req">*</span></label>
+        <input class="form-input" id="cj-location" type="text" placeholder="Ноябрьск, ЯНАО" maxlength="60" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">График вахты <span class="fl-req">*</span></label>
+        <div class="sched-chips" id="sched-chips">
+          <div class="sched-chip" onclick="selectSched(this,'15/15')">15/15</div>
+          <div class="sched-chip" onclick="selectSched(this,'30/30')">30/30</div>
+          <div class="sched-chip" onclick="selectSched(this,'45/15')">45/15</div>
+          <div class="sched-chip" onclick="selectSched(this,'60/30')">60/30</div>
+          <div class="sched-chip" onclick="selectSched(this,'90/30')">90/30</div>
+        </div>
+        <input class="form-input" id="cj-schedule-custom" type="text" placeholder="Свой вариант, напр. 45/30" maxlength="12" style="margin-top:8px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">График работы <span style="color:var(--text-muted);font-weight:400">(необязательно)</span></label>
+        <div class="sched-chips" id="work-sched-chips">
+          <div class="sched-chip" onclick="selectWorkSched(this,'5/2')">5/2</div>
+          <div class="sched-chip" onclick="selectWorkSched(this,'6/1')">6/1</div>
+          <div class="sched-chip" onclick="selectWorkSched(this,'7/0')">7/0</div>
+        </div>
+        <input class="form-input" id="cj-work-schedule-custom" type="text" placeholder="Свой вариант, напр. 4/3" maxlength="12" style="margin-top:8px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Описание вакансии <span class="fl-req">*</span></label>
+        <textarea class="form-textarea" id="cj-desc" placeholder="Расскажите об объекте, задачах и условиях…" maxlength="600" oninput="updateChar('cj-desc','cc-desc',600)"></textarea>
+        <span class="char-count" id="cc-desc">0 / 600</span>
+      </div>
+      <div class="form-nav">
+        <button class="btn-next" style="flex:1" onclick="goStep(2)">Далее →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-wrap" id="cj-step2" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Требования к кандидату <span class="fl-req">*</span></label>
+        <div class="dyn-list" id="req-list"></div>
+        <button class="dyn-add-btn" onclick="addDynItem('req-list','req','Например: Опыт от 3 лет')">+ Добавить требование</button>
+      </div>
+      <div class="form-nav">
+        <button class="btn-prev" onclick="goStep(1)">← Назад</button>
+        <button class="btn-next" onclick="goStep(3)">Далее →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-wrap" id="cj-step3" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Условия работы <span class="fl-req">*</span></label>
+        <div class="dyn-list" id="cond-list"></div>
+        <button class="dyn-add-btn" onclick="addDynItem('cond-list','cond','Например: Бесплатное проживание')">+ Добавить условие</button>
+      </div>
+      <div class="form-group" style="margin-top:6px">
+        <label class="form-label">Контактное лицо <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="cj-contact-name" type="text" placeholder="Иванов Иван Иванович" maxlength="80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Телефон для связи <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="cj-contact-phone" type="tel" placeholder="+7 900 000-00-00" maxlength="20" />
+        <span style="font-size:11px;color:var(--text-muted);margin-top:2px">Если указан — соискатель увидит кнопку «Связаться» в карточке вакансии</span>
+      </div>
+      <div class="form-nav">
+        <button class="btn-prev" onclick="goStep(2)">← Назад</button>
+        <button class="btn-submit" onclick="submitJob()">✅ Опубликовать вакансию</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-screen" id="cj-success">
+    <div class="success-ring">✅</div>
+    <div class="success-title">Вакансия опубликована!</div>
+    <div class="success-sub">Ваше объявление проверено и уже доступно соискателям на платформе.</div>
+    <div class="preview-card" id="cj-preview"></div>
+    <button class="btn-back-employer" onclick="goTo('screen-employer')">← Вернуться в кабинет</button>
+  </div>
+</div>
+
+
+<!-- SCREEN: МОИ РЕЗЮМЕ -->
+<div id="screen-my-resumes" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Мои резюме 📄</div>
+  <div class="section-sub">До 3 анкет — для разных специальностей</div>
+  <div class="resume-list" id="resume-list"></div>
+  <div style="width:100%;max-width:400px;margin-top:6px">
+    <button class="btn-create-resume" id="btn-add-resume" onclick="openCreateResume(null)">+ Создать резюме</button>
+    <div class="resume-count-hint" id="resume-count-hint"></div>
+  </div>
+</div>
+
+
+<!-- SCREEN: СОЗДАТЬ / РЕДАКТИРОВАТЬ РЕЗЮМЕ -->
+<div id="screen-create-resume" class="screen">
+  <button class="back-btn" onclick="goTo('screen-my-resumes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Мои резюме
+  </button>
+  <div id="cr-form-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div class="section-title" id="cr-screen-title">Новое резюме 📄</div>
+    <div class="section-sub">Заполните анкету — работодатели сами найдут вас</div>
+    <div class="form-wrap">
+      <div class="form-group">
+        <label class="form-label">Фото <span class="field-optional">(необязательно)</span></label>
+        <div class="photo-upload-wrap">
+          <div class="photo-upload-circle" id="cr-photo-circle" onclick="document.getElementById('cr-photo-input').click()">
+            <span id="cr-photo-placeholder">📷</span>
+          </div>
+          <span class="photo-upload-hint">Нажмите для загрузки фото</span>
+          <input type="file" id="cr-photo-input" accept="image/*" style="display:none" onchange="handleResumePhoto(this)" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ФИО <span class="fl-req">*</span></label>
+        <input class="form-input" id="cr-name" type="text" placeholder="Иванов Иван Иванович" maxlength="80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Телефон <span class="fl-req">*</span></label>
+        <input class="form-input" id="cr-phone" type="tel" placeholder="+7 900 000-00-00" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telegram <span class="field-optional">(заполняется автоматически)</span></label>
+        <div class="tg-input-wrap">
+          <span class="tg-prefix">@</span>
+          <input class="form-input" id="cr-telegram" type="text" placeholder="username" maxlength="40" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пол <span class="fl-req">*</span></label>
+        <div class="gender-chips">
+          <div class="gender-chip" id="gender-m" onclick="selectGender('М')">👨 Мужской</div>
+          <div class="gender-chip" id="gender-f" onclick="selectGender('Ж')">👩 Женский</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Специальность <span class="fl-req">*</span></label>
+        <input class="form-input" id="cr-specialty" type="text" placeholder="Сварщик, Машинист, Повар…" maxlength="60" />
+      </div>
+
+      <!-- Категория -->
+      <div class="form-group">
+        <label class="form-label">Категория <span class="fl-req">*</span></label>
+        <select class="form-select" id="cr-category" onchange="document.getElementById('cr-custom-cat-wrap').style.display=this.value==='other'?'block':'none'">
+          <option value="" disabled selected>Выберите категорию</option>
+          <option value="oil">Нефть и газ</option>
+          <option value="build">Строительство</option>
+          <option value="mine">Горнодобыча</option>
+          <option value="prod">Производство</option>
+          <option value="food">Питание / Быт</option>
+          <option value="other">Другое</option>
+        </select>
+        <div id="cr-custom-cat-wrap" style="display:none;margin-top:8px">
+          <input class="form-input" id="cr-custom-cat" placeholder="Укажите свою категорию" maxlength="50">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Опыт работы <span class="fl-req">*</span></label>
+        <div class="exp-chips" id="exp-chips">
+          <div class="exp-chip" onclick="selectExp(this,'Нет опыта')">Нет опыта</div>
+          <div class="exp-chip" onclick="selectExp(this,'1–3 года')">1–3 года</div>
+          <div class="exp-chip" onclick="selectExp(this,'3–5 лет')">3–5 лет</div>
+          <div class="exp-chip" onclick="selectExp(this,'5+ лет')">5+ лет</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Желаемая зарплата <span class="fl-req">*</span></label>
+        <div class="salary-row">
+          <input class="form-input" id="cr-salary" type="number" placeholder="90 000" min="0" />
+          <div class="salary-suffix">₽/мес</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Регион / город <span class="fl-req">*</span></label>
+        <input class="form-input" id="cr-region" type="text" placeholder="Москва, Тюмень, Ноябрьск…" maxlength="60" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Гражданство <span class="required-star">*</span></label>
+        <div class="citizen-chips">
+          <div class="citizen-chip" onclick="selectCitizen(this,'Россия')">🇷🇺 Россия</div>
+          <div class="citizen-chip" onclick="selectCitizen(this,'СНГ')">🌐 СНГ</div>
+          <div class="citizen-chip" onclick="selectCitizen(this,'Другое')">🌍 Другое</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">О себе <span class="fl-req">*</span></label>
+        <textarea class="form-textarea" id="cr-about" placeholder="Кратко о себе, опыте и пожеланиях…" maxlength="400" oninput="updateChar('cr-about','cc-about',400)"></textarea>
+        <span class="char-count" id="cc-about">0 / 400</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Удостоверения <span class="field-optional">(если есть)</span></label>
+        <div class="dyn-list" id="cert-list"></div>
+        <button class="dyn-add-btn" onclick="addDynItem('cert-list','cert','Напр.: Удост. сварщика, Права кат. C')">+ Добавить удостоверение</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ключевые навыки <span class="field-optional">(необязательно)</span></label>
+        <div class="dyn-list" id="skill-list"></div>
+        <button class="dyn-add-btn" onclick="addDynItem('skill-list','skill','Напр.: Работа в полевых условиях')">+ Добавить навык</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">История работ <span class="field-optional">(необязательно)</span></label>
+        <div id="wh-list"></div>
+        <button class="dyn-add-btn" onclick="addWorkHistoryItem()">+ Добавить место работы</button>
+      </div>
+      <div class="form-nav">
+        <button class="btn-submit" style="flex:1" onclick="submitResume()">✅ Сохранить резюме</button>
+      </div>
+    </div>
+  </div>
+  <div class="success-screen" id="cr-success">
+    <div class="success-ring">✅</div>
+    <div class="success-title" id="cr-success-title">Резюме создано!</div>
+    <div class="success-sub">Ваша анкета сохранена. Работодатели смогут найти вас на платформе.</div>
+    <div class="preview-card" id="cr-preview"></div>
+    <button class="btn-back-employer" onclick="goTo('screen-my-resumes')">← Мои резюме</button>
+  </div>
+</div>
+
+
+<!-- SCREEN: МОИ ВАКАНСИИ (РАБОТОДАТЕЛЬ) -->
+<div id="screen-my-jobs" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Мои вакансии 📁</div>
+  <div class="section-sub">Управляйте своими объявлениями</div>
+  <div class="tab-bar" style="width:100%;max-width:400px">
+    <div class="tab active" onclick="setMyJobsTab(this,'active')">Активные</div>
+    <div class="tab" onclick="setMyJobsTab(this,'archived')">Архив</div>
+  </div>
+  <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px" id="my-jobs-list"></div>
+  <button class="btn-create-resume" style="margin-top:16px" onclick="openCreateJob()">+ Создать вакансию</button>
+</div>
+
+
+<!-- SCREEN: ВСЕ ОТКЛИКИ РАБОТОДАТЕЛЯ -->
+<div id="screen-employer-responses" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Отклики 💬</div>
+  <div class="section-sub">Все заявки по вашим вакансиям</div>
+  <div class="tab-bar">
+    <div class="tab active" id="er-tab-all"     onclick="setErTab(this,'all')">Все</div>
+    <div class="tab"        id="er-tab-pending"  onclick="setErTab(this,'pending')">Новые</div>
+    <div class="tab"        id="er-tab-accepted" onclick="setErTab(this,'accepted')">Приглашены</div>
+    <div class="tab"        id="er-tab-declined" onclick="setErTab(this,'declined')">Отклонены</div>
+  </div>
+  <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px;margin-top:4px" id="employer-responses-list"></div>
+</div>
+
+
+<!-- SCREEN: ОТКЛИКИ ПО КОНКРЕТНОЙ ВАКАНСИИ -->
+<div id="screen-job-responses" class="screen">
+  <button class="back-btn" onclick="goTo('screen-my-jobs')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Мои вакансии
+  </button>
+  <div class="section-title" id="resp-screen-title">Отклики 💬</div>
+  <div class="section-sub" id="resp-screen-sub">Кандидаты на вакансию</div>
+  <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px" id="job-responses-list"></div>
+</div>
+
+
+<!-- SCREEN: БАЗА РЕЗЮМЕ -->
+<div id="screen-resume-db" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">База резюме 🔍</div>
+  <div class="section-sub">Найдите подходящего работника</div>
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Специальность, регион…" id="rdb-search" oninput="filterResumeDb()" />
+    </div>
+    <button class="filter-toggle-btn" id="rdb-filter-btn" onclick="toggleFilterPanel('rdb-filter-panel','rdb-filter-btn')">
+      ⚙️ <span class="filter-badge-cnt" id="rdb-filter-badge" style="display:none">0</span>
+    </button>
+  </div>
+  <div class="filter-panel" id="rdb-filter-panel">
+    <div class="filter-row">
+      <span class="filter-label">Опыт работы</span>
+      <div class="filter-chips-wrap" id="rdf-exp-chips">
+        <div class="f-chip active" onclick="setRdbExpFilter(this,'all')">Любой</div>
+        <div class="f-chip" onclick="setRdbExpFilter(this,'Нет опыта')">Нет опыта</div>
+        <div class="f-chip" onclick="setRdbExpFilter(this,'1–3 года')">1–3 года</div>
+        <div class="f-chip" onclick="setRdbExpFilter(this,'3–5 лет')">3–5 лет</div>
+        <div class="f-chip" onclick="setRdbExpFilter(this,'5+ лет')">5+ лет</div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Пол</span>
+      <div class="filter-chips-wrap" id="rdf-gender-chips">
+        <div class="f-chip active" onclick="setRdbGenderFilter(this,'all')">Все</div>
+        <div class="f-chip" onclick="setRdbGenderFilter(this,'М')">М</div>
+        <div class="f-chip" onclick="setRdbGenderFilter(this,'Ж')">Ж</div>
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Зарплата до (₽/мес)</span>
+      <div class="filter-inputs">
+        <input class="filter-input" type="number" placeholder="максимум" id="rdf-sal-max" oninput="filterResumeDb()" />
+      </div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Сортировка</span>
+      <div class="filter-chips-wrap" id="rdf-sort-chips">
+        <div class="f-chip active" onclick="setRdbSort(this,'default')">По умолчанию</div>
+        <div class="f-chip" onclick="setRdbSort(this,'salary')">По зарплате ↓</div>
+        <div class="f-chip" onclick="setRdbSort(this,'exp')">По опыту ↓</div>
+      </div>
+    </div>
+    <button class="filter-reset-btn" onclick="resetRdbFilters()">✕ Сбросить фильтры</button>
+  </div>
+  <div class="chips-scroll">
+    <div class="chip active" onclick="setRdbFilter(this,'all')">Все</div>
+    <div class="chip" onclick="setRdbFilter(this,'oil')">Нефть и газ</div>
+    <div class="chip" onclick="setRdbFilter(this,'build')">Строительство</div>
+    <div class="chip" onclick="setRdbFilter(this,'mine')">Горнодобыча</div>
+    <div class="chip" onclick="setRdbFilter(this,'food')">Питание / Быт</div>
+  </div>
+  <div class="rdb-active-filter">
+    <span class="status-dot active" style="margin-left:2px"></span>
+    <span class="rdb-active-label">Только активно ищущих</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="rdb-active-only" onchange="filterResumeDb()">
+      <span class="toggle-track"></span>
+    </label>
+  </div>
+  <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px" id="rdb-list"></div>
+</div>
+
+
+<!-- SCREEN: ПРОФИЛЬ КАНДИДАТА -->
+<div id="screen-candidate-detail" class="screen">
+  <button class="back-btn" onclick="goTo('screen-resume-db')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    База резюме
+  </button>
+  <div class="cand-detail-header">
+    <div class="cand-detail-avatar" id="cd-avatar">👷</div>
+    <div style="flex:1;min-width:0">
+      <div class="cand-detail-name" id="cd-name"></div>
+      <div class="cand-detail-spec" id="cd-spec"></div>
+    </div>
+  </div>
+  <div class="cand-detail-card">
+    <div class="cand-detail-card-title">Основная информация</div>
+    <div class="cand-detail-row"><span class="cand-detail-row-label">💰 Зарплата</span><span class="cand-detail-row-val" id="cd-salary"></span></div>
+    <div class="cand-detail-row"><span class="cand-detail-row-label">📍 Регион</span><span class="cand-detail-row-val" id="cd-region"></span></div>
+    <div class="cand-detail-row"><span class="cand-detail-row-label">⏳ Опыт</span><span class="cand-detail-row-val" id="cd-exp"></span></div>
+    <div class="cand-detail-row"><span class="cand-detail-row-label">👤 Пол</span><span class="cand-detail-row-val" id="cd-gender"></span></div>
+    <div class="cand-detail-row" id="cd-citizen-row"><span class="cand-detail-row-label">🌍 Гражданство</span><span class="cand-detail-row-val" id="cd-citizen"></span></div>
+  </div>
+  <div class="cand-detail-card" id="cd-about-card">
+    <div class="cand-detail-card-title">О себе</div>
+    <div style="font-size:14px;line-height:1.6;color:var(--text)" id="cd-about"></div>
+  </div>
+  <div class="cand-detail-card" id="cd-certs-card">
+    <div class="cand-detail-card-title">Сертификаты / Удостоверения</div>
+    <div class="cand-detail-tags" id="cd-certs"></div>
+  </div>
+  <div class="cand-detail-card" id="cd-skills-card">
+    <div class="cand-detail-card-title">Навыки</div>
+    <div class="cand-detail-tags" id="cd-skills"></div>
+  </div>
+  <div class="cand-detail-card" id="cd-wh-card" style="display:none">
+    <div class="cand-detail-card-title">История работ</div>
+    <div id="cd-work-history"></div>
+  </div>
+  <div id="cd-contact-wrap" style="width:100%;max-width:400px;margin-top:4px"></div>
+</div>
+
+
+<!-- SCREEN: ПРОФИЛЬ КОМПАНИИ -->
+<div id="screen-company-profile" class="screen">
+  <button class="back-btn" onclick="goTo('screen-employer')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div id="cp-form-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div class="section-title">Профиль компании 🏢</div>
+    <div class="section-sub">Заполните страницу — соискатели выберут вас</div>
+    <div class="form-wrap">
+      <div class="photo-upload-wrap">
+        <div class="photo-upload-circle" id="cp-logo-circle" onclick="document.getElementById('cp-logo-input').click()">
+          <span id="cp-logo-placeholder">🏗️</span>
+        </div>
+        <span class="photo-upload-hint">Логотип компании (необязательно)</span>
+        <input type="file" id="cp-logo-input" accept="image/*" style="display:none" onchange="handleCompanyLogo(this)" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Название компании <span class="fl-req">*</span></label>
+        <input class="form-input" id="cp-name" type="text" placeholder="ООО Строймонтаж" maxlength="80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Отрасль <span class="fl-req">*</span></label>
+        <select class="form-select" id="cp-industry">
+          <option value="" disabled selected>Выберите отрасль</option>
+          <option value="oil">Нефть и газ</option>
+          <option value="build">Строительство</option>
+          <option value="mine">Горнодобыча</option>
+          <option value="prod">Производство</option>
+          <option value="food">Питание / Быт</option>
+          <option value="other">Другое</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Город / регион <span class="fl-req">*</span></label>
+        <input class="form-input" id="cp-city" type="text" placeholder="Москва" maxlength="60" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Сайт компании <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="cp-website" type="url" placeholder="https://company.ru" maxlength="100" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Контактный телефон <span class="fl-req">*</span></label>
+        <input class="form-input" id="cp-phone" type="tel" placeholder="+7 900 000-00-00" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telegram <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="cp-telegram" type="text" placeholder="username (без @)" maxlength="40" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="cp-email" type="email" placeholder="hr@company.ru" maxlength="80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">О компании <span class="fl-req">*</span></label>
+        <textarea class="form-textarea" id="cp-about" placeholder="Расскажите о направлениях работы и преимуществах…" maxlength="500" oninput="updateChar('cp-about','cc-cp-about',500)"></textarea>
+        <span class="char-count" id="cc-cp-about">0 / 500</span>
+      </div>
+      <div class="form-nav">
+        <button class="btn-submit" style="flex:1" onclick="saveCompanyProfile()">✅ Сохранить профиль</button>
+      </div>
+    </div>
+  </div>
+  <div class="success-screen" id="cp-success">
+    <div class="success-ring">✅</div>
+    <div class="success-title">Профиль сохранён!</div>
+    <div class="success-sub">Страница компании обновлена. Соискатели увидят её в карточках вакансий.</div>
+    <div class="cp-code-block">
+      <div class="cp-code-label">Код компании для менеджеров</div>
+      <span class="cp-code-value" id="cp-code-display">——</span>
+      <button class="cp-code-copy-btn" onclick="copyCompanyCode()">📋 Скопировать код</button>
+      <div class="cp-code-hint">Поделитесь этим кодом с коллегами — они войдут в кабинет как менеджеры и смогут управлять вакансиями</div>
+    </div>
+    <!-- Блок верификации (показывается только если не верифицирован) -->
+    <div class="verify-block" id="cp-verify-block" style="display:none">
+      <div class="verify-block-title">🏅 Получите знак «Проверен»</div>
+      <div class="verify-block-desc">Галочка рядом с названием компании повышает доверие соискателей и увеличивает количество откликов.</div>
+      <div class="verify-block-price">490 ₽ <span>разовая оплата</span></div>
+      <button class="btn-verify" onclick="openVerifyModal()">Получить верификацию</button>
+    </div>
+    <!-- Блок ожидания подтверждения -->
+    <div class="verify-pending-block" id="cp-verify-pending" style="display:none">
+      <div class="verify-pending-icon">⏳</div>
+      <div class="verify-pending-title">Оплата получена — ждём подтверждения</div>
+      <div class="verify-pending-desc">Обычно занимает до 24 часов. Как только статус будет обновлён — галочка появится автоматически.</div>
+    </div>
+    <button class="btn-back-employer" onclick="goTo('screen-employer')">← Вернуться в кабинет</button>
+  </div>
+</div>
+
+
+<!-- SCREEN: МОИ ОТКЛИКИ (СОИСКАТЕЛЬ) -->
+<div id="screen-my-responses" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Мои отклики ✅</div>
+  <div class="section-sub">Статус ваших заявок</div>
+  <div class="tab-bar" style="width:100%;max-width:400px">
+    <div class="tab active" onclick="setMyRespTab(this,'all')">Все</div>
+    <div class="tab" onclick="setMyRespTab(this,'pending')">На рассмотрении</div>
+    <div class="tab" onclick="setMyRespTab(this,'accepted')">Приглашения</div>
+  </div>
+  <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:14px" id="my-responses-list"></div>
+</div>
+
+
+<!-- SCREEN: ИЗБРАННОЕ -->
+<div id="screen-favorites" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Избранное ❤️</div>
+  <div class="section-sub">Сохранённые вакансии</div>
+  <div class="jobs-list" id="favorites-list" style="max-width:400px"></div>
+</div>
+
+
+<!-- SCREEN: МОЙ ПРОФИЛЬ -->
+<div id="screen-profile" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div id="prof-form-wrap" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div class="section-title">Мой профиль 👤</div>
+    <div class="section-sub">Личные данные и настройки</div>
+    <div class="form-wrap">
+      <div style="text-align:center;margin-bottom:4px">
+        <div class="profile-avatar" id="prof-avatar">👤</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:-12px;margin-bottom:12px" id="prof-tg-handle"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Имя <span class="fl-req">*</span></label>
+        <input class="form-input" id="prof-name" type="text" placeholder="Иван Иванов" maxlength="80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Телефон <span class="fl-req">*</span></label>
+        <input class="form-input" id="prof-phone" type="tel" placeholder="+7 900 000-00-00" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Город <span class="field-optional">(необязательно)</span></label>
+        <input class="form-input" id="prof-city" type="text" placeholder="Москва" maxlength="60" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">О себе <span class="field-optional">(необязательно)</span></label>
+        <textarea class="form-textarea" id="prof-about" placeholder="Кратко о себе…" maxlength="300" oninput="updateChar('prof-about','cc-prof-about',300)"></textarea>
+        <span class="char-count" id="cc-prof-about">0 / 300</span>
+      </div>
+      <div class="form-nav">
+        <button class="btn-submit" style="flex:1" onclick="saveProfile()">✅ Сохранить профиль</button>
+      </div>
+    </div>
+  </div>
+  <div class="success-screen" id="prof-success">
+    <div class="success-ring">✅</div>
+    <div class="success-title">Профиль сохранён!</div>
+    <div class="success-sub">Ваши данные обновлены.</div>
+    <button class="btn-back-employer" onclick="goTo('screen-worker')">← Вернуться в кабинет</button>
+  </div>
+</div>
+
+
+<!-- verify modal -->
+<div id="verify-modal-overlay" class="vmodal-overlay" style="display:none" onclick="closeVerifyModal(event)">
+  <div class="vmodal" onclick="event.stopPropagation()">
+    <div class="vmodal-handle"></div>
+    <div class="vmodal-icon">🏅</div>
+    <div class="vmodal-title">Верификация компании</div>
+    <div class="vmodal-sub">Получите знак «✓ Проверен» рядом с названием компании — соискатели видят его во всех вакансиях</div>
+    <div class="vmodal-price-row">
+      <div class="vmodal-price">490 ₽</div>
+      <div class="vmodal-price-sub">разовая оплата<br>навсегда</div>
+    </div>
+    <div class="vmodal-perks">
+      <div class="vmodal-perk"><span class="vmodal-perk-icon">✓</span> Галочка «Проверен» во всех вакансиях</div>
+      <div class="vmodal-perk"><span class="vmodal-perk-icon">📈</span> Больше откликов от соискателей</div>
+      <div class="vmodal-perk"><span class="vmodal-perk-icon">🛡️</span> Признак надёжного работодателя</div>
+    </div>
+    <button class="vmodal-btn-pay" onclick="startVerification()">Оплатить 490 ₽ через ЮКасса</button>
+    <button class="vmodal-btn-cancel" onclick="closeVerifyModal()">Отмена</button>
+  </div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="toast"></div>
+
+<!-- company info modal -->
+<div id="co-modal-overlay" class="co-modal-overlay" style="display:none" onclick="closeCompanyModal(event)">
+  <div class="co-modal" onclick="event.stopPropagation()">
+    <div class="co-modal-handle"></div>
+    <div class="co-modal-logo" id="co-modal-logo">🏗️</div>
+    <div class="co-modal-name" id="co-modal-name"></div>
+    <div class="co-modal-verified" id="co-modal-verified"></div>
+    <div id="co-modal-rows"></div>
+    <div class="co-modal-about" id="co-modal-about" style="display:none"></div>
+    <button class="co-modal-jobs-btn" onclick="showCompanyJobs()">🔍 Все вакансии компании</button>
+    <button class="co-modal-reviews-btn" id="co-modal-rev-btn" onclick="openReviewsFromModal()">⭐ Отзывы</button>
+    <button class="co-modal-close" onclick="closeCompanyModal()">Закрыть</button>
+  </div>
+</div>
+
+<!-- SCREEN: УВЕДОМЛЕНИЯ -->
+<div id="screen-notifications" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Уведомления 🔔</div>
+  <div class="section-sub">Настройте, о чём хотите получать уведомления в Telegram</div>
+
+  <!-- Статус подписки -->
+  <div class="notif-screen-card" id="notif-status-card">
+    <div class="notif-card-title">Статус</div>
+    <div id="notif-tg-status" style="font-size:13px;color:var(--text-muted);text-align:center;padding:8px 0">
+      Загрузка…
+    </div>
+  </div>
+
+  <!-- Настройки уведомлений -->
+  <div class="notif-screen-card">
+    <div class="notif-card-title">Что уведомлять</div>
+    <div class="notif-toggle-row">
+      <div class="notif-toggle-info">
+        <div class="notif-toggle-label">📋 Новые вакансии</div>
+        <div class="notif-toggle-desc">Уведомления о вакансиях по вашей специальности</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-vacancies-toggle" onchange="saveNotifSettings()">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="notif-toggle-row">
+      <div class="notif-toggle-info">
+        <div class="notif-toggle-label">💬 Новые сообщения</div>
+        <div class="notif-toggle-desc">Уведомление при ответе работодателя в чате</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-chat-toggle" onchange="saveNotifSettings()">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+    <div class="notif-toggle-row">
+      <div class="notif-toggle-info">
+        <div class="notif-toggle-label">👁 Просмотр отклика</div>
+        <div class="notif-toggle-desc">Когда работодатель просматривает вашу анкету</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-viewed-toggle" onchange="saveNotifSettings()">
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Фильтр по специальности/региону -->
+  <div class="notif-screen-card">
+    <div class="notif-card-title">Фильтр вакансий</div>
+    <div class="form-group" style="margin-bottom:10px">
+      <label class="form-label">Специальность</label>
+      <input class="form-input" id="notif-specialty" placeholder="Сварщик, Водитель, Электрик…" maxlength="60" oninput="saveNotifSettings()">
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label class="form-label">Регион</label>
+      <input class="form-input" id="notif-region" placeholder="ЯНАО, Якутия, Красноярский край…" maxlength="80" oninput="saveNotifSettings()">
+    </div>
+  </div>
+
+  <!-- История уведомлений -->
+  <div class="notif-screen-card">
+    <div class="notif-card-title">История уведомлений</div>
+    <div id="notif-history-list">
+      <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">Нет уведомлений</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: РЕФЕРАЛЬНАЯ ПРОГРАММА -->
+<div id="screen-referral" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+
+  <div class="ref-hero">
+    <div class="ref-hero-icon">🎁</div>
+    <div class="ref-hero-title">Приглашайте друзей!</div>
+    <div class="ref-hero-sub">Получите бонус за каждого приглашённого</div>
+  </div>
+
+  <div class="ref-code-card" onclick="copyRefCode()">
+    <div class="ref-code-label">Ваш реферальный код</div>
+    <div class="ref-code-val" id="ref-code-display">——</div>
+    <div class="ref-code-hint">Нажмите, чтобы скопировать</div>
+  </div>
+
+  <div class="ref-stats-row">
+    <div class="ref-stat-card">
+      <div class="ref-stat-num" id="ref-count">0</div>
+      <div class="ref-stat-label">Приглашено</div>
+    </div>
+    <div class="ref-stat-card">
+      <div class="ref-stat-num" id="ref-bonus">0</div>
+      <div class="ref-stat-label">Бонусов ✨</div>
+    </div>
+    <div class="ref-stat-card">
+      <div class="ref-stat-num" id="ref-rank">—</div>
+      <div class="ref-stat-label">Ваш ранг</div>
+    </div>
+  </div>
+
+  <button class="ref-btn-share" onclick="shareReferral()">📤 Поделиться в Telegram</button>
+  <button class="ref-btn-copy" onclick="copyRefLink()">🔗 Скопировать ссылку</button>
+
+  <div class="ref-how-card">
+    <div class="ref-how-title">Как это работает</div>
+    <div class="ref-how-step">
+      <div class="ref-step-num">1</div>
+      <div class="ref-step-text">Поделитесь своим кодом или ссылкой с другом-вахтовиком</div>
+    </div>
+    <div class="ref-how-step">
+      <div class="ref-step-num">2</div>
+      <div class="ref-step-text">Друг открывает Good_Вахта и вводит ваш код при регистрации</div>
+    </div>
+    <div class="ref-how-step">
+      <div class="ref-step-num">3</div>
+      <div class="ref-step-text"><b>Вы получаете +10 бонусов</b>, а друг — приоритетное размещение резюме на 7 дней</div>
+    </div>
+  </div>
+
+  <div class="ref-history-card">
+    <div class="ref-history-title">Приглашённые</div>
+    <div id="ref-history-list">
+      <div style="font-size:13px;color:var(--text-muted);text-align:center;padding:12px 0">Пока никого нет — поделитесь ссылкой!</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: КАРТА ВАКАНСИЙ -->
+
+<!-- SCREEN: РЕКОМЕНДАЦИИ -->
+<div id="screen-recommendations" class="screen">
+  <button class="back-btn" onclick="goTo('screen-worker')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Рекомендации 🎯</div>
+  <div class="section-sub">Вакансии, подобранные на основе вашего резюме</div>
+  <div id="rec-content"></div>
+</div>
+
+<!-- SCREEN: ОТЗЫВЫ О КОМПАНИИ -->
+<div id="screen-reviews" class="screen">
+  <button class="back-btn" onclick="goTo(_reviewsBack||'screen-jobs')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title" id="rev-company-title">Отзывы о компании</div>
+  <div class="section-sub">Оценки от реальных вахтовиков</div>
+
+  <!-- Сводный рейтинг -->
+  <div class="reviews-summary">
+    <div class="reviews-big-num" id="rev-avg">—</div>
+    <div class="reviews-big-stars" id="rev-big-stars">☆☆☆☆☆</div>
+    <div class="reviews-big-count" id="rev-count">Нет отзывов</div>
+    <div class="review-bars" id="rev-bars"></div>
+  </div>
+
+  <!-- Форма отзыва (только для соискателей) -->
+  <div class="review-form-card" id="rev-form-wrap">
+    <div class="review-form-title">✍️ Оставить отзыв</div>
+    <div class="star-input" id="rev-star-input">
+      <span class="star-btn" onclick="setReviewStar(1)">★</span>
+      <span class="star-btn" onclick="setReviewStar(2)">★</span>
+      <span class="star-btn" onclick="setReviewStar(3)">★</span>
+      <span class="star-btn" onclick="setReviewStar(4)">★</span>
+      <span class="star-btn" onclick="setReviewStar(5)">★</span>
+    </div>
+    <textarea class="form-textarea" id="rev-text" placeholder="Расскажите об условиях труда, честности работодателя, оплате…" maxlength="400" oninput="updateChar('rev-text','rev-cc',400)" style="margin-bottom:6px"></textarea>
+    <span class="char-count" id="rev-cc">0 / 400</span>
+    <div class="form-nav" style="margin-top:10px">
+      <button class="btn-submit" style="flex:1" onclick="submitReview()">Опубликовать отзыв</button>
+    </div>
+  </div>
+
+  <!-- Список отзывов -->
+  <div id="rev-list" style="width:100%;max-width:400px"></div>
+</div>
+
+<!-- SCREEN: ЧАТ -->
+<div id="screen-chat" class="screen">
+  <button class="back-btn" onclick="closeChatScreen()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="chat-wrap">
+    <div class="chat-header">
+      <div class="chat-ava" id="chat-ava">💬</div>
+      <div style="flex:1;min-width:0">
+        <div class="chat-hd-name" id="chat-other-name">—</div>
+        <div class="chat-hd-sub" id="chat-job-title">—</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty-msg"><div class="chat-empty-msg-icon">💬</div><div>Напишите первое сообщение</div></div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-textarea" id="chat-textarea" placeholder="Сообщение..." rows="1"
+        oninput="chatAutoResize(this)"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
+      <button class="chat-send" id="chat-send-btn" onclick="sendChatMsg()" title="Отправить">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Telegram Web App init ──
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+
+  // ── theme ──
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.getElementById('theme-icon').textContent = isLight ? '☀️' : '🌙';
+    localStorage.setItem('gv-theme', isLight ? 'light' : 'dark');
+  }
+  (function() {
+    if (localStorage.getItem('gv-theme') === 'light') {
+      document.documentElement.classList.add('light');
+      const btn = document.getElementById('theme-icon');
+      if (btn) btn.textContent = '☀️';
+    }
+  })();
+
+  // ── screen navigation ──
