@@ -217,6 +217,17 @@
   </div>
 </div>
 
+<!-- SCREEN: COMPANY SELECT (switch between employer profiles on this device) -->
+<div id="screen-company-select" class="screen">
+  <button class="back-btn" onclick="goTo('screen-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Назад
+  </button>
+  <div class="section-title">Ваши компании</div>
+  <div class="section-sub">Выберите компанию или добавьте новую</div>
+  <div class="company-select-list" id="company-select-list" style="width:100%;max-width:400px"></div>
+</div>
+
 <!-- SCREEN: EMPLOYER DASHBOARD -->
 <div id="screen-employer" class="screen employer-screen">
   <button class="back-btn" onclick="goTo('screen-home')">
@@ -300,6 +311,13 @@
       <div class="mi-icon" style="background:rgba(255,215,0,.2)">⭐</div>
       <div class="mi-text"><div class="mi-title">Отзывы о компании</div><div class="mi-desc">Оценки и отзывы соискателей</div></div>
       <span class="my-resp-badge emp-review-badge" style="display:none"></span>
+      <span class="mi-arrow">›</span>
+    </div>
+    <div class="menu-item" onclick="window._auth.softExit()">
+      <div class="mi-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </div>
+      <div class="mi-text"><div class="mi-title">Выход</div><div class="mi-desc">Вернуться к экрану входа</div></div>
       <span class="mi-arrow">›</span>
     </div>
   </div>
@@ -522,10 +540,6 @@
     <div class="detail-salary" id="d-salary"></div>
     <div class="detail-tags" id="d-tags"></div>
   </div>
-  <div class="detail-card" id="d-photos-card" style="display:none">
-    <div class="detail-section-title">Фото</div>
-    <div class="job-photo-gallery" id="d-photos"></div>
-  </div>
   <div class="detail-card">
     <div class="detail-section-title">Описание</div>
     <div class="detail-section"><p id="d-desc"></p></div>
@@ -538,9 +552,14 @@
     <div class="detail-section-title">Условия</div>
     <div class="detail-section"><ul id="d-cond"></ul></div>
   </div>
+  <div class="detail-card" id="d-photos-card" style="display:none">
+    <div class="detail-section-title">Фото места работы</div>
+    <div class="job-photo-gallery" id="d-photos"></div>
+  </div>
   <div class="apply-row">
     <button class="apply-btn" id="apply-btn" onclick="window._worker.applyToJob()">✅ Откликнуться на вакансию</button>
     <a class="contact-job-btn" id="contact-btn" href="#" style="display:none">📞</a>
+    <a class="contact-job-btn contact-job-btn--email" id="contact-email-btn" href="#" style="display:none">✉️</a>
   </div>
 </div>
 
@@ -772,7 +791,7 @@
 
 <!-- SCREEN: COMPANY PROFILE -->
 <div id="screen-company-profile" class="screen employer-screen">
-  <button class="back-btn" onclick="goTo('screen-employer')">
+  <button class="back-btn" onclick="window._employer.companyProfileBack()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Назад
   </button>
@@ -1107,7 +1126,8 @@
         <button class="dyn-add-btn" onclick="window._employer.addDynItem('cond-list','cond','Своё условие')">+ Своё условие</button>
       </div>
       <div class="form-group">
-        <label class="form-label">Фото вакансии</label>
+        <label class="form-label">Фото места работы</label>
+        <div class="photo-hint">📸 Добавьте фото объекта, проживания, питания — вакансии с фото получают больше откликов</div>
         <div class="job-photo-grid" id="cj-photo-grid"></div>
         <input type="file" id="cj-photo-input" accept="image/*" multiple style="display:none" onchange="window._employer.handleJobPhotos(this)" />
         <span class="char-count" id="cj-photo-count">0/10</span>
@@ -1122,6 +1142,10 @@
       <div class="form-group">
         <label class="form-label">Телефон для связи</label>
         <input class="form-input" id="cj-contact-phone" type="tel" placeholder="+7 999 000-00-00" maxlength="20" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email для связи</label>
+        <input class="form-input" id="cj-contact-email" type="email" placeholder="hr@company.ru" maxlength="80" />
       </div>
     </div>
 

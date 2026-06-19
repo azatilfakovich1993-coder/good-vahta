@@ -9,11 +9,11 @@
 import { goTo } from '../router.js';
 import { showToast } from '../components/toast.js';
 import {
-  myJobs, jobs, jobResponsesCache, companyProfile, favorites,
+  myJobs, jobs, jobResponsesCache, companyProfile, companyProfiles, favorites,
   saveMyJobs, saveJobResponsesCache, setCompanyProfile, activeCompanyCode,
 } from '../store/index.js';
 import { esc, todayRu, buildSalaryStr, parseSalaryStr, fmtNum, catLabelJob, JOB_CAT_LABELS } from '../utils.js';
-import { saveJob, deleteJob as deleteJobDb, pauseJob } from '../api/jobs.js';
+import { saveJob, deleteJob as deleteJobDb, pauseJob, loadMyJobs } from '../api/jobs.js';
 import { saveCompany, genCompanyCode, checkVerification, loadCompanyByCode } from '../api/companies.js';
 import { lookupCompanyByInn } from '../api/dadata.js';
 import { loadResponsesForCompany, updateResponseStatus } from '../api/responses.js';
@@ -22,6 +22,7 @@ import { notifyResponseStatus } from '../api/notifications.js';
 import { haptic } from '../platform/index.js';
 import { getPlatformUser } from '../platform/index.js';
 import { compressImage } from '../utils.js';
+import { renderCompanySelectList } from './auth.js';
 
 // ── Create Job form state ──────────────────────────────────────────────────
 let cjStep = 1;
@@ -78,6 +79,22 @@ export async function checkVerificationStatus() {
 }
 
 // ── Company profile ────────────────────────────────────────────────────────
+
+/**
+ * Back from the company-profile form: if there's an active company, that means
+ * we got here to edit it — go back to its dashboard. Otherwise we're filling
+ * in a brand-new company — go back to the picker (or home if none exist yet).
+ */
+export function companyProfileBack() {
+  if (companyProfile?.name) {
+    goTo('screen-employer');
+  } else if (companyProfiles.length > 0) {
+    goTo('screen-company-select');
+    renderCompanySelectList();
+  } else {
+    goTo('screen-home');
+  }
+}
 
 /** Prefill company profile form with existing data (called on screen entry). */
 export function initCompanyProfileForm() {
@@ -178,7 +195,8 @@ export async function saveCompanyProfile() {
   };
 
   setCompanyProfile(updated);
-  await saveCompany(updated);
+  const synced = await saveCompany(updated);
+  if (!synced) showToast('⚠️ Сохранено только на этом устройстве — нет связи с сервером', 'error');
 
   // Update company code display
   const codeDisplay = document.getElementById('cp-code-display');
@@ -253,13 +271,18 @@ export async function handleJobPhotos(input) {
   if (files.length > room) showToast(`Добавлено только ${room} из ${files.length} — лимит ${MAX_JOB_PHOTOS} фото`, 'error');
 
   for (const file of toAdd) {
-    if (file.size > 8 * 1024 * 1024) { showToast(`«${file.name}» больше 8 МБ — пропущено`, 'error'); continue; }
-    const dataUrl = await new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
-    cjPhotos.push(await compressImage(dataUrl, 900, 0.75));
+    if (file.size > 25 * 1024 * 1024) { showToast(`«${file.name}» больше 25 МБ — пропущено`, 'error'); continue; }
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('read failed'));
+        reader.readAsDataURL(file);
+      });
+      cjPhotos.push(await compressImage(dataUrl, 1600, 0.88));
+    } catch {
+      showToast(`Не удалось загрузить «${file.name}»`, 'error');
+    }
   }
   renderJobPhotos();
 }
@@ -297,6 +320,7 @@ export function openEditJob(idx) {
   _setVal('cj-desc', j.desc);
   _setVal('cj-contact-name',  j.contactName);
   _setVal('cj-contact-phone', j.contactPhone);
+  _setVal('cj-contact-email', j.contactEmail);
   cjSchedule     = j.schedule     || '';
   cjWorkSchedule = j.workSchedule || '';
   cjCategory     = j.category     || '';
@@ -312,7 +336,7 @@ function resetJobForm() {
   dynCounters = {};
   cjPhotos = [];
   renderJobPhotos();
-  ['cj-title','cj-location','cj-salary-from','cj-salary-to','cj-desc','cj-contact-name','cj-contact-phone'].forEach(id => {
+  ['cj-title','cj-location','cj-salary-from','cj-salary-to','cj-desc','cj-contact-name','cj-contact-phone','cj-contact-email'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.querySelectorAll('#sched-chips .sched-chip, #work-sched-chips .sched-chip, #cj-cat-chips .sched-chip').forEach(c => c.classList.remove('active'));
@@ -473,6 +497,26 @@ export async function submitJob() {
   }
 }
 
+function _renderJobPreview(job) {
+  const preview = document.getElementById('cj-preview');
+  if (!preview) return;
+  preview.innerHTML = `
+    <div class="pc-header">
+      <div class="pc-logo">📋</div>
+      <div>
+        <div class="pc-company">${esc(companyProfile?.name || 'Компания')}${companyProfile?.verified ? ' <span class="verified-chip">✓ Проверен</span>' : ''}</div>
+        <div class="pc-title">${esc(job.title)}</div>
+      </div>
+    </div>
+    <div class="pc-salary">${esc(job.salary)}</div>
+    <div class="pc-meta">
+      <span class="pc-tag">📍 ${esc(job.location)}</span>
+      <span class="pc-tag">⏱ Вахта ${esc(job.schedule)}</span>
+      ${job.workSchedule ? `<span class="pc-tag">📆 ${esc(job.workSchedule)}</span>` : ''}
+      <span class="pc-tag">📅 ${esc(job.date || todayRu())}</span>
+    </div>`;
+}
+
 async function _doSubmitJob() {
   const title        = document.getElementById('cj-title').value.trim();
   const salFrom      = document.getElementById('cj-salary-from').value.trim();
@@ -489,6 +533,7 @@ async function _doSubmitJob() {
   const conds        = getListValues('cond-list');
   const contactName  = document.getElementById('cj-contact-name').value.trim();
   const contactPhone = document.getElementById('cj-contact-phone').value.trim();
+  const contactEmail = document.getElementById('cj-contact-email').value.trim();
   const catCustomEl  = document.getElementById('cj-custom-cat');
   const catCustom    = catCustomEl ? catCustomEl.value.trim() : '';
 
@@ -503,16 +548,19 @@ async function _doSubmitJob() {
       ...myJobs[cjEditIndex],
       title, location, salary: salaryStr, schedule, workSchedule,
       category: cjCategory || 'other', categoryCustom: catCustom,
-      desc, req: reqs, cond: conds, contactName, contactPhone,
+      desc, req: reqs, cond: conds, contactName, contactPhone, contactEmail,
       photos: [...cjPhotos],
     };
     myJobs[cjEditIndex] = updated;
     const jIdx = jobs.findIndex(j => j.id === oldId);
     if (jIdx !== -1) jobs[jIdx] = { ...jobs[jIdx], ...updated };
     saveMyJobs();
-    await saveJob({ ...updated });
+    const synced1 = await saveJob({ ...updated });
     window._jobs?.renderJobs(jobs);
-    showToast('Вакансия обновлена ✏️', 'success');
+    showToast(synced1 ? 'Вакансия обновлена ✏️' : '⚠️ Обновлено только локально — нет связи с сервером', synced1 ? 'success' : 'error');
+    _renderJobPreview(updated);
+    const successTitle = document.querySelector('#cj-success .success-title');
+    if (successTitle) successTitle.textContent = 'Вакансия обновлена!';
     document.getElementById('cj-form-wrap').style.display = 'none';
     document.getElementById('cj-success').classList.add('active');
     cjEditIndex = null;
@@ -536,7 +584,7 @@ async function _doSubmitJob() {
     } : null,
     ownerChatId: me.id || null,
     title, location, salary: salaryStr, schedule, workSchedule, date: today,
-    desc, req: reqs, cond: conds, contactName, contactPhone,
+    desc, req: reqs, cond: conds, contactName, contactPhone, contactEmail,
     photos: [...cjPhotos],
     paused: false, archived: false,
   };
@@ -544,46 +592,57 @@ async function _doSubmitJob() {
   jobs.unshift(newJob);
   myJobs.unshift({ ...newJob });
   saveMyJobs();
-  await saveJob({ ...newJob });
+  const synced2 = await saveJob({ ...newJob });
+  if (!synced2) showToast('⚠️ Вакансия сохранена только локально — нет связи с сервером', 'error');
 
   // Notify matching workers
   window._notifications?.notifyMatchingWorkers?.(newJob);
   window._jobs?.renderJobs(jobs);
   haptic('success');
 
-  // Build preview
-  const preview = document.getElementById('cj-preview');
-  if (preview) {
-    preview.innerHTML = `
-      <div class="pc-header">
-        <div class="pc-logo">📋</div>
-        <div>
-          <div class="pc-company">${esc(companyProfile?.name || 'Компания')}${companyProfile?.verified ? ' <span class="verified-chip">✓ Проверен</span>' : ''}</div>
-          <div class="pc-title">${esc(title)}</div>
-        </div>
-      </div>
-      <div class="pc-salary">${esc(salaryStr)}</div>
-      <div class="pc-meta">
-        <span class="pc-tag">📍 ${esc(location)}</span>
-        <span class="pc-tag">⏱ Вахта ${esc(schedule)}</span>
-        ${workSchedule ? `<span class="pc-tag">📆 ${esc(workSchedule)}</span>` : ''}
-        <span class="pc-tag">📅 ${esc(today)}</span>
-      </div>`;
-  }
+  _renderJobPreview(newJob);
+  const successTitle = document.querySelector('#cj-success .success-title');
+  if (successTitle) successTitle.textContent = 'Вакансия опубликована!';
   document.getElementById('cj-form-wrap').style.display = 'none';
   document.getElementById('cj-success').classList.add('active');
 }
 
 // ── My Jobs ────────────────────────────────────────────────────────────────
 
+/** Jobs belonging to the currently active company only — each company manages its own list. */
+function myCompanyJobs() {
+  if (!companyProfile?.code) return [];
+  return myJobs.filter(j => j.companyInfo?.code === companyProfile.code);
+}
+
+/**
+ * Pulls the active company's vacancies from Supabase and merges them into the
+ * local cache. "Мои вакансии" used to rely solely on localStorage — if that got
+ * cleared (cache wipe, quota limits, new device) the list looked empty even
+ * though the jobs still existed on the server. This keeps it in sync.
+ */
+export async function syncMyJobsFromServer() {
+  if (!companyProfile?.code) return;
+  const fresh = await loadMyJobs(companyProfile.code);
+  if (!fresh.length) return;
+  const freshIds = new Set(fresh.map(j => String(j.id)));
+  for (let i = myJobs.length - 1; i >= 0; i--) {
+    if (freshIds.has(String(myJobs[i].id))) myJobs.splice(i, 1);
+  }
+  myJobs.unshift(...fresh);
+  saveMyJobs();
+  renderMyJobs();
+}
+
 export function renderMyJobs() {
   const c = document.getElementById('my-jobs-list');
   if (!c) return;
-  const active   = myJobs.filter(j => !j.archived && !j.paused);
-  const paused   = myJobs.filter(j => !j.archived &&  j.paused);
-  const archived = myJobs.filter(j =>  j.archived);
+  const mine     = myCompanyJobs();
+  const active   = mine.filter(j => !j.archived && !j.paused);
+  const paused   = mine.filter(j => !j.archived &&  j.paused);
+  const archived = mine.filter(j =>  j.archived);
 
-  if (!myJobs.length) {
+  if (!mine.length) {
     c.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Нет вакансий</div><div class="empty-desc">Создайте первую вакансию</div></div>`;
     return;
   }
@@ -726,9 +785,10 @@ export async function renderAllEmployerResponses() {
     saveJobResponsesCache();
   }
 
+  const myJobIds = new Set(myCompanyJobs().map(j => String(j.id)));
   const all = [];
   Object.entries(jobResponsesCache).forEach(([jobId, resps]) => {
-    if (jobId === '__all' || !Array.isArray(resps)) return;
+    if (jobId === '__all' || !Array.isArray(resps) || !myJobIds.has(String(jobId))) return;
     resps.forEach((r, i) => all.push({ ...r, _jobId: jobId, _idx: i }));
   });
   all.sort((a, b) => new Date(b.created_at || b.date || 0) - new Date(a.created_at || a.date || 0));
@@ -887,8 +947,10 @@ export async function declineResponse(jobId, idx, responseId, name) {
 }
 
 export function updateResponseBadges() {
+  const myJobIds = new Set(myCompanyJobs().map(j => String(j.id)));
   let total = 0;
-  Object.values(jobResponsesCache).forEach(arr => {
+  Object.entries(jobResponsesCache).forEach(([jobId, arr]) => {
+    if (!myJobIds.has(String(jobId)) || !Array.isArray(arr)) return;
     arr.forEach(r => { if (!r.status || r.status === 'pending') total++; });
   });
   const badge = document.getElementById('resp-badge');
@@ -922,15 +984,17 @@ export async function renderAnalytics() {
     ? await loadInvitationsForEmployer(companyProfile.name)
     : [];
 
-  if (!myJobs.length) {
+  const mine = myCompanyJobs();
+  if (!mine.length) {
     el.innerHTML = `<div class="an-empty">📋 Создайте первую вакансию,<br>чтобы увидеть аналитику</div>`;
     return;
   }
 
-  // Collect all responses (no __all key)
+  // Collect responses for this company's jobs only (no __all key)
+  const myJobIds = new Set(mine.map(j => String(j.id)));
   const allResps = [];
   Object.entries(jobResponsesCache).forEach(([key, arr]) => {
-    if (key === '__all' || !Array.isArray(arr)) return;
+    if (key === '__all' || !Array.isArray(arr) || !myJobIds.has(String(key))) return;
     arr.forEach(r => allResps.push(r));
   });
 
@@ -945,13 +1009,13 @@ export async function renderAnalytics() {
   const invDeclined = invitations.filter(i => i.status === 'declined').length;
   const invPending  = invitations.filter(i => i.status === 'pending' || i.status === 'viewed').length;
 
-  const activeJobs  = myJobs.filter(j => !j.archived && !j.paused).length;
-  const pausedJobs  = myJobs.filter(j => j.paused && !j.archived).length;
-  const archivedJobs = myJobs.filter(j => j.archived).length;
+  const activeJobs  = mine.filter(j => !j.archived && !j.paused).length;
+  const pausedJobs  = mine.filter(j => j.paused && !j.archived).length;
+  const archivedJobs = mine.filter(j => j.archived).length;
   const acceptRate  = totalResp ? Math.round(totalAccepted / totalResp * 100) : 0;
 
   // Per-job stats
-  const jobStats = myJobs
+  const jobStats = mine
     .filter(j => !j.archived)
     .map(j => {
       const resps = (jobResponsesCache[j.id] || []);
@@ -1004,7 +1068,7 @@ export async function renderAnalytics() {
   el.innerHTML = `
     <div class="an-kpi-grid">
       <div class="an-kpi-card">
-        <div class="an-kpi-num">${myJobs.length}</div>
+        <div class="an-kpi-num">${mine.length}</div>
         <div class="an-kpi-label">Вакансий</div>
         <div class="an-kpi-sub">${activeJobs} активных${pausedJobs ? ` · ${pausedJobs} на паузе` : ''}${archivedJobs ? ` · ${archivedJobs} в архиве` : ''}</div>
       </div>
@@ -1218,7 +1282,9 @@ window._employer = {
   acceptResponse, declineResponse, updateResponseBadges, openCandidateFromResponse,
   renderAnalytics, updateVerifyBanner, checkVerificationStatus,
   saveCompanyProfile, initCompanyProfileForm, handleCompanyLogo, joinAsManager, onInnInput, onIndustryChange,
+  companyProfileBack,
   handleJobPhotos, removeJobPhoto,
   openSentInvitations, loadSentInvitations, previewMyJob, checkNewReviews, markReviewsSeen,
+  syncMyJobsFromServer,
   _getCompanyName: () => companyProfile?.name || '',
 };

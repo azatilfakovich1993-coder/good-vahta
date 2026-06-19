@@ -2,11 +2,16 @@
  * Web entry — role selection only, no email/password registration.
  * Role (employer/worker) is saved in the session; new users without
  * a profile yet are sent straight to fill it in (company / resume).
+ * A device can hold several employer profiles — picked via screen-company-select.
  */
 import { setWebSession } from '../platform/index.js';
 import { goTo } from '../router.js';
 import { PLATFORM } from '../platform/index.js';
-import { companyProfile, resumes } from '../store/index.js';
+import {
+  companyProfile, companyProfiles, resumes,
+  selectCompanyProfile, clearActiveCompanyProfile,
+} from '../store/index.js';
+import { esc, letterAvatar } from '../utils.js';
 
 // ── Redirect by role ───────────────────────────────────────────────────────
 
@@ -93,15 +98,62 @@ window._auth._pickRole = function(role) {
   setWebSession({ id: guestId, firstName: '', email: null, role, username: null, photoUrl: null });
   _renderHomeCabinet(role);
 
-  // New user without a profile yet — send straight to fill it in.
-  if (role === 'employer' && !companyProfile?.name) {
-    goTo('screen-company-profile');
-  } else if (role === 'worker' && resumes.length === 0) {
+  if (role === 'employer') {
+    if (companyProfiles.length > 0) {
+      goTo('screen-company-select');
+      renderCompanySelectList();
+    } else {
+      goTo('screen-company-profile');
+    }
+  } else if (resumes.length === 0) {
     goTo('screen-create-resume');
   } else {
     _redirectByRole(role);
   }
 };
+
+// ── Company select (switch between employer profiles on this device) ──────
+
+export function renderCompanySelectList() {
+  const list = document.getElementById('company-select-list');
+  if (!list) return;
+  const cards = companyProfiles.map(c => {
+    const { letter, background } = letterAvatar(c.name);
+    return `
+      <div class="cs-card" onclick="window._auth._selectCompany('${esc(c.code)}')">
+        <div class="cs-card-avatar" style="${c.logo ? '' : `background:${background}`}">
+          ${c.logo ? `<img src="${esc(c.logo)}" />` : letter}
+        </div>
+        <div>
+          <div class="cs-card-name">${esc(c.name)}</div>
+          <div class="cs-card-sub">${esc(c.city || '')}</div>
+        </div>
+        <span class="cs-card-arrow">›</span>
+      </div>`;
+  }).join('');
+  list.innerHTML = cards + `
+    <div class="cs-card cs-card--add" onclick="window._auth._addNewCompany()">
+      <div class="cs-card-name">+ Новая компания</div>
+    </div>`;
+}
+
+window._auth._selectCompany = function(code) {
+  selectCompanyProfile(code);
+  goTo('screen-employer');
+  _renderHomeCabinet('employer');
+};
+
+window._auth._addNewCompany = function() {
+  clearActiveCompanyProfile();
+  goTo('screen-company-profile');
+};
+
+/** Soft exit — back to the role picker, keeps all saved profiles/resumes intact. */
+export function softExit() {
+  goTo('screen-home');
+  _showRolePicker();
+}
+window._auth.softExit = softExit;
 
 function _getWebSession() {
   try { return JSON.parse(localStorage.getItem('vahta_web_session') || 'null'); } catch { return null; }

@@ -12,6 +12,7 @@ const LS_KEYS = {
   myResponses:    'vahta_myResponses',    // legacy offline cache
   favorites:      'vahta_favorites',
   companyProfile: 'vahta_companyProfile',
+  companyProfiles: 'vahta_companyProfiles',
   userProfile:    'vahta_userProfile',
   workerStatus:   'vahta_workerStatus',
   notifSettings:  'vahta_notifSettings',
@@ -71,8 +72,11 @@ export const myResponsesCache = (() => {
   return Array.isArray(loaded) ? loaded : [];
 })();
 
-/** Company profile (employer) */
+/** Company profile (employer) — the currently active one */
 export let companyProfile = lsLoad(LS_KEYS.companyProfile, null);
+
+/** All companies ever filled in on this device — lets one device manage several employer profiles */
+export let companyProfiles = lsLoad(LS_KEYS.companyProfiles, companyProfile ? [companyProfile] : []);
 
 /** User profile (worker) */
 export let userProfile = lsLoad(LS_KEYS.userProfile, null);
@@ -99,6 +103,29 @@ export let theme = lsLoad(LS_KEYS.theme, 'dark');
 export function setCompanyProfile(profile) {
   companyProfile = profile;
   lsSave(LS_KEYS.companyProfile, profile);
+
+  // Keep the registry of all companies on this device in sync.
+  if (profile?.code) {
+    const idx = companyProfiles.findIndex(c => c.code === profile.code);
+    if (idx === -1) companyProfiles.push(profile);
+    else companyProfiles[idx] = profile;
+    lsSave(LS_KEYS.companyProfiles, companyProfiles);
+  }
+}
+
+/** Switch the active company to one already saved on this device (by code). */
+export function selectCompanyProfile(code) {
+  const found = companyProfiles.find(c => c.code === code);
+  if (!found) return false;
+  companyProfile = found;
+  lsSave(LS_KEYS.companyProfile, found);
+  return true;
+}
+
+/** Clear the active company pointer only — used before filling a brand-new one. */
+export function clearActiveCompanyProfile() {
+  companyProfile = null;
+  lsSave(LS_KEYS.companyProfile, null);
 }
 
 export function setUserProfile(profile) {
@@ -130,11 +157,20 @@ export function setTheme(t) {
   document.documentElement.classList.toggle('light', t === 'light');
 }
 
+/**
+ * Photos are saved to Supabase (vacancies.data) and re-fetched from there
+ * (see syncMyJobsFromServer). Keeping them out of the local mirror too avoids
+ * blowing the localStorage quota, which used to silently fail other saves.
+ */
+function _withoutPhotos(jobsArr) {
+  return jobsArr.map(j => j.photos ? { ...j, photos: undefined } : j);
+}
+
 export function saveMyJobs() {
-  lsSave(LS_KEYS.myJobs, myJobs);
+  lsSave(LS_KEYS.myJobs, _withoutPhotos(myJobs));
   // Also save under company key for manager sharing
   const code = activeCompanyCode || companyProfile?.code;
-  if (code) lsSave(`vahta_co_${code}_myJobs`, myJobs);
+  if (code) lsSave(`vahta_co_${code}_myJobs`, _withoutPhotos(myJobs));
 }
 
 export function saveResumes() {

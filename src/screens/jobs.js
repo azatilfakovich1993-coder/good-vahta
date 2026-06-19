@@ -97,7 +97,7 @@ export function jobCardHtml(j, opts = {}) {
   const hasApplied = myResponsesCache.find(r => r.job_id === String(j.id) || r.jobId === j.id);
   const isNew = _isNewJob(j);
 
-  const letter = (j.company || '?')[0].toUpperCase();
+  const avatar = letterAvatar(j.company);
   const catName = j.category ? catLabelJob(j).replace(/^[\p{Emoji}\s]+/u, '').trim() : '';
   const rating = ratingInlineHtml(j.company);
 
@@ -105,7 +105,7 @@ export function jobCardHtml(j, opts = {}) {
     <div class="job-card${j._isClosed ? ' job-closed' : ''}" onclick="window._jobs.openJob(${j.id})">
       <div class="jc-main">
         <div class="jc-side">
-          <div class="jc-logo">${letter}</div>
+          <div class="jc-logo" style="${j.logo ? '' : `background:${avatar.background}`}">${j.logo ? `<img src="${esc(j.logo)}" style="width:100%;height:100%;object-fit:cover;border-radius:12px" />` : avatar.letter}</div>
           <div class="jc-side-btns">
             <button class="fav-btn ${isFav ? 'active' : ''}" onclick="window._jobs.toggleFavorite(${j.id},event)" title="В избранное">${isFav ? '❤️' : '🤍'}</button>
           </div>
@@ -330,8 +330,8 @@ export function openJob(id) {
   const photosEl   = document.getElementById('d-photos');
   if (photosCard && photosEl) {
     if (j.photos?.length) {
-      photosEl.innerHTML = j.photos.map(src =>
-        `<img src="${src}" onclick="window._jobs.openPhotoFullscreen('${src}')" />`
+      photosEl.innerHTML = j.photos.map((src, i) =>
+        `<img src="${src}" onclick="window._jobs.openPhotoFullscreen(${i})" />`
       ).join('');
       photosCard.style.display = '';
     } else {
@@ -355,6 +355,17 @@ export function openJob(id) {
       contactBtn.style.display = '';
     } else {
       contactBtn.style.display = 'none';
+    }
+  }
+
+  const contactEmailBtn = document.getElementById('contact-email-btn');
+  if (contactEmailBtn) {
+    if (j.contactEmail) {
+      contactEmailBtn.href = `mailto:${esc(j.contactEmail)}`;
+      contactEmailBtn.title = j.contactName ? `Написать: ${esc(j.contactName)}` : 'Написать работодателю';
+      contactEmailBtn.style.display = '';
+    } else {
+      contactEmailBtn.style.display = 'none';
     }
   }
 
@@ -452,12 +463,42 @@ export function showCompanyInfo(jobId, event) {
   document.body.appendChild(overlay);
 }
 
-export function openPhotoFullscreen(src) {
+export function openPhotoFullscreen(startIdx) {
+  const j = jobs.find(x => x.id === currentJobId);
+  const photos = j?.photos || [];
+  if (!photos.length) return;
+  let idx = startIdx;
+
   const overlay = document.createElement('div');
-  overlay.className = 'co-modal-overlay';
+  overlay.className = 'co-modal-overlay photo-lightbox';
   overlay.style.alignItems = 'center';
-  overlay.onclick = () => overlay.remove();
-  overlay.innerHTML = `<img src="${src}" style="max-width:92vw;max-height:85vh;object-fit:contain;border-radius:12px" />`;
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const render = () => {
+    overlay.innerHTML = `
+      <div class="photo-lb-inner">
+        <img src="${photos[idx]}" />
+        ${photos.length > 1 ? `
+          <button class="photo-lb-nav photo-lb-prev" onclick="event.stopPropagation();window._jobs._lbStep(-1)">‹</button>
+          <button class="photo-lb-nav photo-lb-next" onclick="event.stopPropagation();window._jobs._lbStep(1)">›</button>
+          <div class="photo-lb-counter">${idx + 1} / ${photos.length}</div>
+        ` : ''}
+        <button class="photo-lb-close" onclick="this.closest('.co-modal-overlay').remove()">×</button>
+      </div>`;
+  };
+
+  window._jobs._lbStep = dir => { idx = (idx + dir + photos.length) % photos.length; render(); };
+
+  let touchStartX = null;
+  overlay.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  overlay.addEventListener('touchend', e => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) window._jobs._lbStep(dx > 0 ? -1 : 1);
+    touchStartX = null;
+  });
+
+  render();
   document.body.appendChild(overlay);
 }
 

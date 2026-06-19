@@ -12,6 +12,18 @@ export async function loadJobs() {
   return (data || []).map(row => row.data ? { ...row.data, archived: row.archived, paused: row.paused } : row);
 }
 
+/**
+ * Loads every vacancy (active, paused or archived) belonging to one company.
+ * Used to rebuild "Мои вакансии" from the server, so it survives localStorage
+ * being cleared/lost — the local cache was previously the only source of truth.
+ */
+export async function loadMyJobs(companyId) {
+  if (!sb || !companyId) return [];
+  const { data, error } = await sb.from('vacancies').select('*').eq('companyId', companyId);
+  if (error) { console.warn('[jobs] loadMyJobs:', error.message); return []; }
+  return (data || []).map(row => row.data ? { ...row.data, archived: row.archived, paused: row.paused } : row);
+}
+
 export async function saveJob(job) {
   if (!sb) return false;
   const row = {

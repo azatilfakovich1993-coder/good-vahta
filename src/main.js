@@ -8,10 +8,10 @@ import './styles/jobcard.css';
 
 import { platformInit, PLATFORM, getPlatformUser, fetchVKUser } from './platform/index.js';
 import { initRouter, onScreen, goTo } from './router.js';
-import { initAuthScreen } from './screens/auth.js';
+import { initAuthScreen, renderCompanySelectList } from './screens/auth.js';
 import { initJobsScreen, renderJobs, filterJobs } from './screens/jobs.js';
 import { renderResumes, loadResumeDb, initWorkerStatusUI, renderRecommendations, renderMyResponses, loadInvitationBadge, loadMyResponseBadge } from './screens/worker.js';
-import { renderMyJobs, renderAllEmployerResponses, renderAnalytics, updateVerifyBanner, checkVerificationStatus, updateResponseBadges, initCompanyProfileForm, checkNewReviews, loadSentInvitations } from './screens/employer.js';
+import { renderMyJobs, renderAllEmployerResponses, renderAnalytics, updateVerifyBanner, checkVerificationStatus, updateResponseBadges, initCompanyProfileForm, checkNewReviews, loadSentInvitations, syncMyJobsFromServer } from './screens/employer.js';
 import { loadSentInvitationKeys } from './screens/misc.js';
 import { toggleTheme } from './screens/misc.js';
 import { setTheme, theme, companyProfile, jobs } from './store/index.js';
@@ -50,7 +50,7 @@ async function boot() {
   onScreen('screen-my-resumes',         () => { renderResumes(); initWorkerStatusUI(); });
   onScreen('screen-my-responses',       () => renderMyResponses());
   onScreen('screen-employer-responses', () => renderAllEmployerResponses());
-  onScreen('screen-my-jobs',            () => renderMyJobs());
+  onScreen('screen-my-jobs',            () => { renderMyJobs(); syncMyJobsFromServer(); });
   onScreen('screen-analytics',          () => renderAnalytics());
   onScreen('screen-recommendations',    () => renderRecommendations());
 
@@ -60,6 +60,7 @@ async function boot() {
     window._misc.filterResumeDb();
   });
   onScreen('screen-home',   () => loadInvitationBadge());
+  onScreen('screen-company-select', () => renderCompanySelectList());
   onScreen('screen-worker', () => {
     initWorkerStatusUI(); loadInvitationBadge(); loadMyResponseBadge();
     // Sync user name for worker sidebar
@@ -71,7 +72,7 @@ async function boot() {
     if (el) el.textContent = name || '—';
   });
   onScreen('screen-employer', () => {
-    updateVerifyBanner(); updateResponseBadges(); checkNewReviews();
+    updateVerifyBanner(); updateResponseBadges(); checkNewReviews(); syncMyJobsFromServer();
     // Sync company name for sidebar
     const name = companyProfile?.name || '';
     window.__esb_company = name;
