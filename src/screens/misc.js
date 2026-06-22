@@ -107,7 +107,7 @@ export function filterResumeDb() {
   const q = (document.getElementById('rdb-search')?.value || '').toLowerCase().trim();
   let result = [...resumeDbData];
   if (rdbCatFilter !== 'all') result = result.filter(r => r.category === rdbCatFilter);
-  if (rdbActiveOnly) result = result.filter(r => r.status?.open);
+  if (rdbActiveOnly) result = result.filter(r => r.published !== false);
   if (q) result = result.filter(r =>
     (r.name || '').toLowerCase().includes(q) ||
     (r.specialty || '').toLowerCase().includes(q) ||

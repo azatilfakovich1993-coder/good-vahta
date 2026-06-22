@@ -53,15 +53,14 @@ export function toggleWorkerStatus() {
   showToast(newStatus.open ? '✅ Вы в поиске работы!' : '🔒 Статус скрыт');
 
   // Update published resume statuses
-  resumes.forEach((r, i) => {
-    r.published = newStatus.open;
-  });
+  resumes.forEach(r => { r.published = newStatus.open; });
   saveResumes();
+  renderResumes();
 
-  // Sync to Supabase
+  // Sync to Supabase — id scheme must match submitResume/deleteResume ('<userId>_resume_<index>')
   const me = getPlatformUser();
   if (me.id) {
-    resumes.forEach(r => saveResume({ ...r, published: newStatus.open }, me.id + '_' + (resumes.indexOf(r))));
+    resumes.forEach((r, i) => saveResume(r, me.id + '_resume_' + i));
   }
 }
 
@@ -274,7 +273,7 @@ export async function submitResume() {
   const resume = {
     name, specialty, salary: parseInt(salary) || 0, region,
     telegram, phone, gender: crGender, exp: crExp, citizen: citizenFinal,
-    workRegions, about, category, categoryCustom, photo: crPhoto, published: workerStatus.open !== false,
+    workRegions, about, category, categoryCustom, photo: crPhoto,
   };
 
   const me = getPlatformUser();
@@ -282,16 +281,21 @@ export async function submitResume() {
     ? me.id + '_resume_' + (crEditIndex !== null ? crEditIndex : resumes.length)
     : 'guest_resume_' + Date.now();
 
+  let finalResume;
   if (crEditIndex !== null) {
-    resumes[crEditIndex] = { ...resumes[crEditIndex], ...resume };
+    // Preserve existing published/archived state — editing a resume must not
+    // silently un-archive it or override the global "open to offers" toggle.
+    finalResume = resumes[crEditIndex] = { ...resumes[crEditIndex], ...resume };
     showToast('Резюме обновлено ✅', 'success');
   } else {
     if (resumes.length >= MAX_RESUMES) { showToast('Максимум 3 резюме', 'error'); return; }
+    resume.published = workerStatus.open !== false;
     resumes.push(resume);
+    finalResume = resume;
     showToast('Резюме создано ✅', 'success');
   }
   saveResumes();
-  await saveResume(resume, id);
+  await saveResume(finalResume, id);
 
   document.getElementById('cr-form-wrap').style.display = 'none';
   document.getElementById('cr-success').classList.add('active');
@@ -591,12 +595,11 @@ ${(r.phone || r.telegram) ? `
 // Realtime subscriptions for resumes are handled centrally by src/realtime.js
 
 export async function loadResumeDb() {
+  // Full reconcile (not merge) — resumes that became unpublished since the
+  // last load must disappear, not linger as stale "ghost" candidates.
   const remote = await loadPublicResumes();
-  remote.forEach(r => {
-    const idx = resumeDbData.findIndex(x => x.id === r.id);
-    if (idx === -1) resumeDbData.unshift(r);
-    else resumeDbData[idx] = r;
-  });
+  resumeDbData.length = 0;
+  remote.forEach(r => resumeDbData.push(r));
 }
 
 // ── Invitations ────────────────────────────────────────────────────────────

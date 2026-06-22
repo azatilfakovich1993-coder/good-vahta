@@ -82,7 +82,7 @@ export let companyProfiles = lsLoad(LS_KEYS.companyProfiles, companyProfile ? [c
 export let userProfile = lsLoad(LS_KEYS.userProfile, null);
 
 /** Worker availability status */
-export let workerStatus = lsLoad(LS_KEYS.workerStatus, { open: false, schedule: '' });
+export let workerStatus = lsLoad(LS_KEYS.workerStatus, { open: true, schedule: '' });
 
 /** Notification settings */
 export let notifSettings = lsLoad(LS_KEYS.notifSettings, {
