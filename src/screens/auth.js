@@ -94,8 +94,20 @@ function _showRolePicker() {
 
 window._auth = window._auth || {};
 window._auth._pickRole = function(role) {
-  const guestId = 'guest_' + crypto.randomUUID().slice(0, 8);
-  setWebSession({ id: guestId, firstName: '', email: null, role, username: null, photoUrl: null });
+  // Reuse the existing device identity if there is one — minting a fresh
+  // guestId here would orphan whatever this device already saved to
+  // Supabase under the old id (resumes, etc.) every time the user just
+  // switches roles or comes back from softExit().
+  const existing = _getWebSession();
+  const id = existing?.id || ('guest_' + crypto.randomUUID().slice(0, 8));
+  setWebSession({
+    id,
+    firstName: existing?.firstName || '',
+    email: existing?.email || null,
+    role,
+    username: existing?.username || null,
+    photoUrl: existing?.photoUrl || null,
+  });
   _renderHomeCabinet(role);
 
   if (role === 'employer') {

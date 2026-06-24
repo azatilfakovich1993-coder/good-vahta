@@ -432,9 +432,11 @@
       <div class="mi-text"><div class="mi-title">Настройки</div><div class="mi-desc">Уведомления и настройки аккаунта</div></div>
       <span class="mi-arrow">›</span>
     </div>
-    <div class="menu-item menu-item-danger" onclick="window._misc.logout()">
-      <div class="mi-icon red">🚪</div>
-      <div class="mi-text"><div class="mi-title">Выйти из аккаунта</div><div class="mi-desc">Вернуться к экрану входа</div></div>
+    <div class="menu-item" onclick="window._auth.softExit()">
+      <div class="mi-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </div>
+      <div class="mi-text"><div class="mi-title">Выход</div><div class="mi-desc">Вернуться к экрану входа</div></div>
       <span class="mi-arrow">›</span>
     </div>
   </div>
@@ -914,14 +916,14 @@
         <textarea class="form-textarea" id="prof-about" placeholder="Расскажите о себе..." maxlength="400"></textarea>
       </div>
       <button class="btn-submit" style="width:100%" onclick="window._misc.saveProfile()">💾 Сохранить</button>
-      <button class="btn-logout" onclick="window._misc.logout()">Выйти из аккаунта</button>
+      <button class="btn-logout" onclick="window._auth.softExit()">Выйти из аккаунта</button>
     </div>
   </div>
   <div class="success-screen" id="prof-success">
     <div class="success-ring">✅</div>
     <div class="success-title">Профиль сохранён!</div>
     <button class="btn-back-employer" onclick="goTo('screen-worker')">← Назад</button>
-    <button class="btn-logout" style="margin-top:12px" onclick="window._misc.logout()">Выйти из аккаунта</button>
+    <button class="btn-logout" style="margin-top:12px" onclick="window._auth.softExit()">Выйти из аккаунта</button>
   </div>
 </div>
 
